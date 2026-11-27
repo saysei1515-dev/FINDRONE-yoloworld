@@ -436,18 +436,18 @@ function initCropCanvasEvents() {
   const img = document.getElementById("cropPreviewImg");
   if (!cCanvas || !stage || !img) return;
 
-  const preventLongPressMenu = (e) => {
+  const preventDefaultOnly = (e) => {
     e.preventDefault();
-    e.stopPropagation();
   };
-  cCanvas.addEventListener("contextmenu", preventLongPressMenu);
-  stage.addEventListener("contextmenu", preventLongPressMenu);
+  cCanvas.addEventListener("contextmenu", preventDefaultOnly);
+  stage.addEventListener("contextmenu", preventDefaultOnly);
+
+  let activePointerId = null;
 
   const getPos = (e) => {
     const rect = cCanvas.getBoundingClientRect();
-    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
-    const clientX = touch ? touch.clientX : e.clientX;
-    const clientY = touch ? touch.clientY : e.clientY;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
     return {
       x: Math.max(0, Math.min(rect.width, clientX - rect.left)),
       y: Math.max(0, Math.min(rect.height, clientY - rect.top)),
@@ -470,24 +470,30 @@ function initCropCanvasEvents() {
     ];
   };
 
-  const onDown = (e) => {
+  cCanvas.addEventListener("pointerdown", (e) => {
     if (activeDraftIndex < 0) return;
     if (e.cancelable) e.preventDefault();
+    activePointerId = e.pointerId;
+    try {
+      cCanvas.setPointerCapture(e.pointerId);
+    } catch (_) {}
     cCanvas.width = stage.clientWidth;
     cCanvas.height = stage.clientHeight;
     cropDragStart = getPos(e);
     cropCurrentRect = null;
-  };
+  });
 
-  const onMove = (e) => {
-    if (!cropDragStart || activeDraftIndex < 0) return;
+  cCanvas.addEventListener("pointermove", (e) => {
+    if (!cropDragStart || e.pointerId !== activePointerId || activeDraftIndex < 0) return;
     if (e.cancelable) e.preventDefault();
     const pos = getPos(e);
     cropCurrentRect = toNormalizedBox(cropDragStart, pos);
     drawCropOverlay(cropCurrentRect);
-  };
+  });
 
-  const onUp = () => {
+  const finishPointer = (e) => {
+    if (e.pointerId !== activePointerId) return;
+    activePointerId = null;
     if (!cropDragStart) return;
     cropDragStart = null;
     if (cropCurrentRect && activeDraftIndex >= 0) {
@@ -500,12 +506,8 @@ function initCropCanvasEvents() {
     cropCurrentRect = null;
   };
 
-  cCanvas.addEventListener("mousedown", onDown);
-  cCanvas.addEventListener("mousemove", onMove);
-  window.addEventListener("mouseup", onUp);
-  cCanvas.addEventListener("touchstart", onDown, { passive: false });
-  cCanvas.addEventListener("touchmove", onMove, { passive: false });
-  window.addEventListener("touchend", onUp);
+  cCanvas.addEventListener("pointerup", finishPointer);
+  cCanvas.addEventListener("pointercancel", finishPointer);
 }
 
 window.saveRegisteredObject = function () {
