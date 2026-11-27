@@ -233,7 +233,7 @@
       transform: translate(34px, -50%);
     }
 
-    /* 押せるボタン共通スタイル（影をつけてわかりやすく） */
+    /* 押せるボタン共通スタイル */
     button {
       font-family: inherit;
       border: 2px solid rgba(255, 255, 255, 0.92);
@@ -267,7 +267,6 @@
       box-shadow: none;
     }
 
-    /* ホーム画面の大型ボタン */
     .btn-massive {
       width: 84%;
       max-width: 270px;
@@ -286,7 +285,6 @@
       color: #4f415e;
     }
 
-    /* 汎用ボタン */
     .btn-decision {
       background: linear-gradient(135deg, #bef5b1 0%, #86d672 100%);
       color: #224719;
@@ -310,7 +308,6 @@
       font-size: 13px;
     }
 
-    /* 探索開始・停止トグルボタン */
     #startButton {
       background: var(--accent-amber);
       color: #5e460e;
@@ -326,7 +323,6 @@
       box-shadow: 0 7px 18px rgba(245, 145, 175, 0.36) !important;
     }
 
-    /* QRコードトグル */
     .btn-qr-toggle {
       width: 100%;
       background: linear-gradient(135deg, #e7fbf0 0%, #b5efd1 100%);
@@ -338,7 +334,6 @@
       color: #841435 !important;
     }
 
-    /* QRリーダー */
     #qr-reader {
       width: 100%;
       max-width: 260px;
@@ -358,7 +353,6 @@
       border-radius: 14px;
     }
 
-    /* カメラ・プレビューファインダー + コーナーガイド */
     .viewfinder-outer {
       position: relative;
       width: 100%;
@@ -398,7 +392,6 @@
       z-index: 3;
     }
 
-    /* ステータスバッジ */
     .status-area {
       text-align: center;
       font-size: 12px;
@@ -412,7 +405,6 @@
       max-width: 100%;
     }
 
-    /* 履歴フォルダボタン */
     #folderBtn {
       position: relative;
       background: linear-gradient(135deg, #c9eeff 0%, #a5d5ff 100%);
@@ -422,7 +414,6 @@
       font-size: 14px;
     }
 
-    /* 発見した物体一覧の右上に表示する未読写真枚数バッジ */
     .folder-unread-badge {
       display: none;
       position: absolute;
@@ -442,7 +433,6 @@
       box-shadow: 0 3px 8px rgba(190, 45, 75, 0.35);
     }
 
-    /* 発見した物体一覧の下に表示する通知バナー */
     #foundToast {
       display: none;
       width: 100%;
@@ -464,7 +454,6 @@
       text-align: center;
     }
 
-    /* 通知バナー右端に表示する検出個数バッジ */
     .toast-count-badge {
       display: none;
       flex-shrink: 0;
@@ -482,6 +471,181 @@
       box-shadow: 0 2px 6px rgba(180, 60, 85, 0.28);
     }
 
+    /* 事前登録タブ用スタイル（既存カードと調和） */
+    .active-visual-bar {
+      width: 100%;
+      background: #e9fbf5;
+      border: 1.5px solid #9be5cf;
+      border-radius: 16px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1b5a49;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .btn-mini-clear {
+      padding: 4px 10px;
+      font-size: 11px;
+      background: #ffffff;
+      color: #5c475a;
+      border: 1.5px solid #d7ece5;
+    }
+
+    .register-photo-actions {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-photo-pick {
+      flex: 1;
+      background: linear-gradient(135deg, #e7fbf0 0%, #b5efd1 100%);
+      color: #1d573c;
+      font-size: 12px;
+      padding: 10px 12px;
+    }
+
+    .crop-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #fff6fa;
+      border: 2px solid #f2cde0;
+      border-radius: 20px;
+      overflow: hidden;
+      display: none;
+      touch-action: none;
+    }
+
+    .crop-stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .crop-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      cursor: crosshair;
+    }
+
+    .register-hint {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: center;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .draft-thumbs-row {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
+    .draft-thumb {
+      position: relative;
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #f0cde0;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .draft-thumb.is-selected {
+      border-color: #36b594;
+      box-shadow: 0 0 0 2px rgba(54, 181, 148, 0.25);
+    }
+
+    .draft-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .registered-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .registered-item-card {
+      background: #fff8fb;
+      border: 2px solid #f4d4e4;
+      border-radius: 18px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .registered-item-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid #ffffff;
+      flex-shrink: 0;
+      background: #f3ecff;
+    }
+
+    .registered-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .registered-item-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .registered-item-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .registered-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-use-item {
+      padding: 7px 11px;
+      font-size: 11px;
+      background: var(--accent-mint);
+      color: var(--accent-mint-text);
+    }
+
+    .btn-del-item {
+      padding: 7px 9px;
+      font-size: 11px;
+      background: var(--accent-pink);
+      color: #6b2234;
+    }
+
     /* フッター固定ナビゲーション */
     .nav-bar {
       position: fixed;
@@ -494,7 +658,7 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 8px 10px calc(env(safe-area-inset-bottom, 24px) + 8px);
+      padding: 8px 6px calc(env(safe-area-inset-bottom, 24px) + 8px);
       box-shadow: 0 -6px 22px rgba(204, 154, 184, 0.16);
       z-index: 1000;
     }
@@ -509,7 +673,7 @@
       color: #b59db1;
       font-size: 10px;
       font-weight: 800;
-      padding: 6px 14px;
+      padding: 6px 10px;
       gap: 3px;
       box-shadow: none;
       border-radius: 16px;
@@ -523,7 +687,7 @@
     }
 
     .nav-item i {
-      font-size: 21px;
+      font-size: 20px;
     }
 
     .nav-item.active {
@@ -698,7 +862,6 @@
       word-break: break-all;
     }
 
-    /* 隅につける ❌ 削除ボタン */
     .corner-delete-btn {
       position: absolute;
       top: -6px;
@@ -723,7 +886,6 @@
       margin-top: 28px;
     }
 
-    /* プレビューモーダル */
     #imagePreviewModal {
       display: none;
       position: fixed;
@@ -782,11 +944,62 @@
     </div>
   </div>
 
-  <!-- ================= ② SEARCH タブ ================= -->
+  <!-- ================= ② REGISTER タブ（事前登録） ================= -->
+  <div id="registerTab" class="tab-content">
+    <div class="app-header">register</div>
+
+    <div class="glass-card">
+      <div class="input-wrapper">
+        <input type="text" id="registerNameInput" placeholder="持ち物の名前（例：自分のキーケース）" autocomplete="off" />
+      </div>
+
+      <div class="register-photo-actions">
+        <button type="button" class="btn-photo-pick" onclick="triggerRegisterCamera()">
+          <i class="bi bi-camera"></i> 撮影する
+        </button>
+        <button type="button" class="btn-photo-pick" onclick="triggerRegisterGallery()">
+          <i class="bi bi-images"></i> 写真を選ぶ
+        </button>
+      </div>
+
+      <input type="file" id="registerCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleRegisterFiles(this.files)" />
+      <input type="file" id="registerGalleryInput" accept="image/*" multiple style="display: none;" onchange="handleRegisterFiles(this.files)" />
+
+      <!-- 見本枠のドラッグ指定エリア -->
+      <div id="cropStage" class="crop-stage">
+        <img id="cropPreviewImg" alt="見本プレビュー" />
+        <canvas id="cropCanvas" class="crop-canvas"></canvas>
+      </div>
+
+      <p class="register-hint">
+        複数角度で3〜5枚ほど登録すると精度が上がります。<br>
+        写真上でドラッグすると「探したい物体」の枠を指定できます。
+      </p>
+
+      <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
+        <button type="button" class="btn-mini-clear" onclick="resetCropBox()">枠をリセット</button>
+        <button type="button" class="btn-decision" onclick="saveRegisteredObject()">この持ち物を登録</button>
+      </div>
+
+      <div id="draftThumbsRow" class="draft-thumbs-row"></div>
+
+      <div class="status-area" id="registerStatus">登録済みアイテムはありません</div>
+
+      <div id="registeredList" class="registered-list"></div>
+    </div>
+  </div>
+
+  <!-- ================= ③ SEARCH タブ ================= -->
   <div id="searchTab" class="tab-content">
     <div class="app-header">search</div>
 
     <div class="glass-card">
+      <!-- 選択中の登録見本バナー（使用中のみ表示） -->
+      <div id="activeVisualBanner" class="active-visual-bar">
+        <span id="activeVisualLabel">🖼️ 見本で探索中</span>
+        <button type="button" class="btn-mini-clear" onclick="clearSelectedVisualItem()">解除</button>
+      </div>
+
       <!-- 検索ワード（初期値は空欄） -->
       <div class="input-wrapper">
         <input type="text" id="targetObject" value="" placeholder="探す物体を入力してください" autocomplete="off" />
@@ -795,7 +1008,6 @@
 
       <!-- 探索開始／探索終了ボタン（トグル式） -->
       <button id="startButton" onclick="startDetection()" disabled>探索開始</button>
-      <!-- 隠し（既存の停止システムとの整合用） -->
       <button id="stopButton" onclick="stopDetection()" style="display: none;"></button>
 
       <!-- カメラ映像エリア -->
@@ -813,7 +1025,7 @@
         <span id="unreadPhotosBadge" class="folder-unread-badge">0</span>
       </button>
 
-      <!-- 発見通知バナー（発見した物体一覧の下に表示・右端に検出個数バッジ） -->
+      <!-- 発見通知バナー -->
       <div id="foundToast">
         <span id="foundToastText" class="toast-message-text"></span>
         <span id="detectedCountBadge" class="toast-count-badge">×0</span>
@@ -821,30 +1033,26 @@
     </div>
   </div>
 
-  <!-- ================= ③ SETTING タブ ================= -->
+  <!-- ================= ④ SETTING タブ ================= -->
   <div id="settingTab" class="tab-content">
     <div class="app-header">setting</div>
 
     <div class="glass-card">
-      <!-- サーバーURL -->
       <div class="input-wrapper">
         <span class="input-icon"><i class="bi bi-laptop"></i></span>
         <input type="text" id="serverIp" placeholder="IPアドレスまたはURLを入力してください" />
         <button class="btn-connect" onclick="connectToServerOnly()">接続</button>
       </div>
 
-      <!-- PCカメラ Peer ID -->
       <div class="input-wrapper">
         <span class="input-icon"><i class="bi bi-camera"></i></span>
         <input type="text" id="pcIdInput" placeholder="カメラのIDを入力してください" />
         <button class="btn-connect" onclick="connectToPC()">接続</button>
       </div>
 
-      <!-- QRカメラ（カメラ接続欄と通知設定の間） -->
       <button id="btn-qr" class="btn-qr-toggle" onclick="toggleQrScanner()"><i class="bi bi-qr-code-scan"></i> QRコードカメラ起動</button>
       <div id="qr-reader"></div>
 
-      <!-- 通知音設定（スライドスイッチ） -->
       <div class="notify-setting-box">
         <div class="notify-toggle-row">
           <span class="notify-label-group"><i class="bi bi-bell-fill"></i> 通知音</span>
@@ -854,7 +1062,6 @@
 
       <div class="status-area" id="connectionStatus">ステータス: 未接続</div>
 
-      <!-- 設定保存ボタン -->
       <button class="btn-save" onclick="saveAllSettings()"><i class="bi bi-floppy"></i> この設定で保存</button>
     </div>
   </div>
@@ -864,6 +1071,10 @@
     <button id="nav-home" class="nav-item active" onclick="goToTab('home')">
       <i class="bi bi-house"></i>
       <span>Home</span>
+    </button>
+    <button id="nav-register" class="nav-item" onclick="goToTab('register')">
+      <i class="bi bi-plus-circle"></i>
+      <span>登録</span>
     </button>
     <button id="nav-search" class="nav-item" onclick="goToTab('search')">
       <i class="bi bi-search"></i>
