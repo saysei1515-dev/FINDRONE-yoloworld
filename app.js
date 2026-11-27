@@ -464,7 +464,6 @@ function syncSamplePreviewUI() {
   }
 }
 
-// 「切り抜く」ボタン：このボタンを押したときだけ指でなぞって切り抜きできる
 window.toggleCropMode = function () {
   if (activeDraftIndex < 0 || !draftSamples[activeDraftIndex]) {
     alert("先に見本写真を追加してください！");
@@ -545,6 +544,7 @@ function createCroppedDataUrlFromCanvasRect(sourceImg, canvasEl, x1, y1, x2, y2,
   cropOutCanvas.width = outW;
   cropOutCanvas.height = outH;
   const outCtx = cropOutCanvas.getContext("2d");
+  outCtx.clearRect(0, 0, outW, outH);
   outCtx.drawImage(sourceImg, sx, sy, sw, sh, 0, 0, outW, outH);
   return cropOutCanvas.toDataURL("image/jpeg", 0.85);
 }
@@ -592,7 +592,6 @@ window.applyCropSelection = function () {
   syncSamplePreviewUI();
 };
 
-// 右上の「削除」ボタン：表示中の見本写真を1枚消去
 window.deleteCurrentDraftSample = function () {
   if (activeDraftIndex < 0 || !draftSamples[activeDraftIndex]) return;
   draftSamples.splice(activeDraftIndex, 1);
@@ -672,7 +671,6 @@ function initCropCanvasEvents() {
   cropCanvas.ontouchend = handleEnd;
 }
 
-// 登録済みアイテムの「編集」ボタンを押したときの処理
 window.startEditingRegisteredItem = function (id) {
   const target = registeredItems.find((it) => it.id === id);
   if (!target) return;
@@ -797,7 +795,7 @@ function renderRegisteredList() {
     const meta = document.createElement("div");
     meta.className = "registered-item-meta";
     const croppedCount = item.samples.filter((s) => Boolean(s.croppedDataUrl)).length;
-    meta.innerText = `写真 ${item.samples.length}枚（切り抜き ${croppedCount}枚）`;
+    meta.innerText = `写真 ${item.samples.length}枚（切り抜き ${croppedCount}枚・一括照合）`;
 
     info.appendChild(title);
     info.appendChild(meta);
@@ -852,7 +850,7 @@ function updateActiveVisualBanner() {
   if (!banner || !label) return;
   if (selectedVisualItem) {
     banner.style.display = "flex";
-    label.innerText = `🖼️ 見本で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚を順次利用)`;
+    label.innerText = `🖼️ 見本で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚を一括照合)`;
   } else {
     banner.style.display = "none";
     label.innerText = "";
@@ -875,7 +873,7 @@ function selectRegisteredItemForSearch(id) {
   if (inputElement) inputElement.value = found.name;
   updateActiveVisualBanner();
   goToTab("search");
-  setStatus(`🎯 見本「${found.name}」(${found.samples.length}枚)を選択しました`, "#247a5d");
+  setStatus(`🎯 見本「${found.name}」(${found.samples.length}枚一括)を選択しました`, "#247a5d");
 }
 
 function buildBaseUrl(rawInput) {
@@ -1140,7 +1138,7 @@ window.updateTarget = async function () {
     visualSampleCursor = 0;
     updateActiveVisualBanner();
     if (isSearching) {
-      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」(${selectedVisualItem.samples.length}枚)をYOLOEで探索中...`, "#247a5d");
+      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」(${selectedVisualItem.samples.length}枚一括)をYOLOEで探索中...`, "#247a5d");
     } else {
       setStatus(`🎯 見本「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
     }
@@ -1251,7 +1249,7 @@ window.startDetection = async function () {
     }
     setStatus(
       selectedVisualItem
-        ? `🖼️ 見本「${selectedVisualItem.name}」(${selectedVisualItem.samples.length}枚)をYOLOEで探索中...`
+        ? `🖼️ 見本「${selectedVisualItem.name}」(${selectedVisualItem.samples.length}枚一括)をYOLOEで探索中...`
         : `🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`,
       "#247a5d"
     );
@@ -1291,6 +1289,62 @@ async function dataUrlToBlob(dataUrl) {
   return await res.blob();
 }
 
+function loadImageElement(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// 切り抜いたbox2dの縦横比をそのまま維持（黒帯なし）してYOLO送信用の見本Blobを生成する
+async function buildAspectCroppedBlobForYolo(sample, maxOutSide = 320) {
+  const fallbackDataUrl = sample.croppedDataUrl || sample.dataUrl;
+  if (!sample || !sample.dataUrl || !Array.isArray(sample.box2d) || sample.box2d.length !== 4) {
+    return await dataUrlToBlob(fallbackDataUrl);
+  }
+
+  const [ymin, xmin, ymax, xmax] = sample.box2d.map((v) => Number(v));
+  const normX1 = Math.max(0, Math.min(1000, Math.min(xmin, xmax)));
+  const normY1 = Math.max(0, Math.min(1000, Math.min(ymin, ymax)));
+  const normX2 = Math.max(0, Math.min(1000, Math.max(xmin, xmax)));
+  const normY2 = Math.max(0, Math.min(1000, Math.max(ymin, ymax)));
+
+  if (normX2 - normX1 < 5 || normY2 - normY1 < 5) {
+    return await dataUrlToBlob(fallbackDataUrl);
+  }
+
+  const img = await loadImageElement(sample.dataUrl);
+  const natW = img.naturalWidth || img.width;
+  const natH = img.naturalHeight || img.height;
+  if (!natW || !natH) {
+    return await dataUrlToBlob(fallbackDataUrl);
+  }
+
+  const sx = Math.max(0, Math.min(natW - 1, Math.round((normX1 / 1000) * natW)));
+  const sy = Math.max(0, Math.min(natH - 1, Math.round((normY1 / 1000) * natH)));
+  const ex = Math.max(sx + 1, Math.min(natW, Math.round((normX2 / 1000) * natW)));
+  const ey = Math.max(sy + 1, Math.min(natH, Math.round((normY2 / 1000) * natH)));
+  const sw = ex - sx;
+  const sh = ey - sy;
+
+  const scale = Math.min(1, maxOutSide / Math.max(sw, sh));
+  const outW = Math.max(1, Math.round(sw * scale));
+  const outH = Math.max(1, Math.round(sh * scale));
+
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = outW;
+  outCanvas.height = outH;
+  const outCtx = outCanvas.getContext("2d");
+  outCtx.clearRect(0, 0, outW, outH);
+  outCtx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+
+  return await new Promise((resolve) =>
+    outCanvas.toBlob((b) => resolve(b), "image/jpeg", 0.85)
+  );
+}
+
 // ================= サーバーへ画像送信 ＆ 検出 =================
 async function sendFrameToPC(serverInput, keyword) {
   if (isUpdatingTarget || (!keyword && !selectedVisualItem)) return;
@@ -1325,17 +1379,18 @@ async function sendFrameToPC(serverInput, keyword) {
     formData.append("keyword", requestedKeyword);
 
     if (selectedVisualItem && Array.isArray(selectedVisualItem.samples) && selectedVisualItem.samples.length > 0) {
-      const sampleCount = selectedVisualItem.samples.length;
-      const sampleIdx = visualSampleCursor % sampleCount;
-      visualSampleCursor = (visualSampleCursor + 1) % sampleCount;
-
-      const sample = selectedVisualItem.samples[sampleIdx];
-      const refBlob = await dataUrlToBlob(sample.croppedDataUrl || sample.dataUrl);
       formData.append("mode", "visual");
-      formData.append("ref_image", refBlob, `ref_${sampleIdx}.jpg`);
-      if (!sample.croppedDataUrl && Array.isArray(sample.box2d)) {
-        formData.append("ref_box_2d", JSON.stringify(sample.box2d));
-      }
+      const refBlobs = await Promise.all(
+        selectedVisualItem.samples.map((s) => buildAspectCroppedBlobForYolo(s))
+      );
+      refBlobs.forEach((refBlob, idx) => {
+        if (refBlob) {
+          formData.append("ref_images", refBlob, `ref_${idx}.jpg`);
+          if (idx === 0) {
+            formData.append("ref_image", refBlob, `ref_0.jpg`);
+          }
+        }
+      });
     } else {
       formData.append("mode", "text");
     }
