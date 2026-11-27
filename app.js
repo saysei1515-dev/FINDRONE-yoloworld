@@ -30,6 +30,7 @@ let activeDraftIndex = -1;
 let selectedVisualItem = null;
 let cropDragStart = null;
 let cropCurrentRect = null;
+let cropEventsInitialized = false;
 
 // 通知（アプリ内トースト＆Web Audio通知音）用
 let isNotificationEnabled = false;
@@ -258,6 +259,7 @@ window.goToTab = function (tabName) {
   if (targetNav) targetNav.classList.add("active");
 
   if (tabName === "register") {
+    initCropCanvasEvents();
     renderRegisteredList();
     renderDraftThumbs();
     syncCropStageWithActiveDraft();
@@ -331,6 +333,7 @@ window.handleRegisterFiles = async function (fileList) {
       console.warn("見本画像の読み込み失敗:", err);
     }
   }
+  initCropCanvasEvents();
   renderDraftThumbs();
   syncCropStageWithActiveDraft();
 };
@@ -355,8 +358,8 @@ function renderDraftThumbs() {
 }
 
 function getRenderedImageRect(stageEl, imgEl) {
-  const stageW = stageEl.clientWidth;
-  const stageH = stageEl.clientHeight;
+  const stageW = stageEl.clientWidth || stageEl.getBoundingClientRect().width;
+  const stageH = stageEl.clientHeight || stageEl.getBoundingClientRect().height;
   const natW = imgEl.naturalWidth || stageW;
   const natH = imgEl.naturalHeight || stageH;
   if (!stageW || !stageH || !natW || !natH) {
@@ -375,6 +378,19 @@ function getRenderedImageRect(stageEl, imgEl) {
   }
 }
 
+function resizeCropCanvasToStage() {
+  const stage = document.getElementById("cropStage");
+  const cCanvas = document.getElementById("cropCanvas");
+  if (!stage || !cCanvas) return;
+  const rect = stage.getBoundingClientRect();
+  const w = Math.max(1, Math.round(rect.width || stage.clientWidth));
+  const h = Math.max(1, Math.round(rect.height || stage.clientHeight));
+  if (cCanvas.width !== w || cCanvas.height !== h) {
+    cCanvas.width = w;
+    cCanvas.height = h;
+  }
+}
+
 function syncCropStageWithActiveDraft() {
   const stage = document.getElementById("cropStage");
   const img = document.getElementById("cropPreviewImg");
@@ -389,9 +405,10 @@ function syncCropStageWithActiveDraft() {
 
   stage.style.display = "block";
   const renderBox = () => {
-    cCanvas.width = stage.clientWidth;
-    cCanvas.height = stage.clientHeight;
-    drawCropOverlay(draftSamples[activeDraftIndex].box2d);
+    requestAnimationFrame(() => {
+      resizeCropCanvasToStage();
+      drawCropOverlay(draftSamples[activeDraftIndex].box2d);
+    });
   };
   img.onload = renderBox;
   img.src = draftSamples[activeDraftIndex].dataUrl;
@@ -404,6 +421,7 @@ function drawCropOverlay(box2d) {
   const cCanvas = document.getElementById("cropCanvas");
   if (!stage || !img || !cCanvas) return;
 
+  resizeCropCanvasToStage();
   const cCtx = cCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
   if (!box2d) return;
@@ -415,11 +433,13 @@ function drawCropOverlay(box2d) {
   const w = ((xmax - xmin) / 1000) * r.w;
   const h = ((ymax - ymin) / 1000) * r.h;
 
-  cCtx.strokeStyle = "#00b884";
-  cCtx.lineWidth = 3;
+  cCtx.save();
+  cCtx.strokeStyle = "#00c853";
+  cCtx.lineWidth = 4;
   cCtx.strokeRect(x, y, w, h);
-  cCtx.fillStyle = "rgba(0, 184, 132, 0.16)";
+  cCtx.fillStyle = "rgba(0, 200, 83, 0.22)";
   cCtx.fillRect(x, y, w, h);
+  cCtx.restore();
 }
 
 window.resetCropBox = function () {
@@ -434,7 +454,8 @@ function initCropCanvasEvents() {
   const cCanvas = document.getElementById("cropCanvas");
   const stage = document.getElementById("cropStage");
   const img = document.getElementById("cropPreviewImg");
-  if (!cCanvas || !stage || !img) return;
+  if (!cCanvas || !stage || !img || cropEventsInitialized) return;
+  cropEventsInitialized = true;
 
   const preventDefaultOnly = (e) => {
     e.preventDefault();
@@ -463,10 +484,10 @@ function initCropCanvasEvents() {
     const x2 = clampX(Math.max(p1.x, p2.x));
     const y2 = clampY(Math.max(p1.y, p2.y));
     return [
-      Math.round(((y1 - r.y) / Math.max(1, r.h)) * 1000),
-      Math.round(((x1 - r.x) / Math.max(1, r.w)) * 1000),
-      Math.round(((y2 - r.y) / Math.max(1, r.h)) * 1000),
-      Math.round(((x2 - r.x) / Math.max(1, r.w)) * 1000),
+      Math.max(0, Math.min(1000, Math.round(((y1 - r.y) / Math.max(1, r.h)) * 1000))),
+      Math.max(0, Math.min(1000, Math.round(((x1 - r.x) / Math.max(1, r.w)) * 1000))),
+      Math.max(0, Math.min(1000, Math.round(((y2 - r.y) / Math.max(1, r.h)) * 1000))),
+      Math.max(0, Math.min(1000, Math.round(((x2 - r.x) / Math.max(1, r.w)) * 1000))),
     ];
   };
 
@@ -477,8 +498,7 @@ function initCropCanvasEvents() {
     try {
       cCanvas.setPointerCapture(e.pointerId);
     } catch (_) {}
-    cCanvas.width = stage.clientWidth;
-    cCanvas.height = stage.clientHeight;
+    resizeCropCanvasToStage();
     cropDragStart = getPos(e);
     cropCurrentRect = null;
   });
@@ -498,7 +518,7 @@ function initCropCanvasEvents() {
     cropDragStart = null;
     if (cropCurrentRect && activeDraftIndex >= 0) {
       const [ymin, xmin, ymax, xmax] = cropCurrentRect;
-      if (xmax - xmin >= 15 && ymax - ymin >= 15) {
+      if (xmax - xmin >= 10 && ymax - ymin >= 10) {
         draftSamples[activeDraftIndex].box2d = cropCurrentRect;
       }
       drawCropOverlay(draftSamples[activeDraftIndex].box2d);
