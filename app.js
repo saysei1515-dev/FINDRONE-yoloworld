@@ -354,6 +354,27 @@ function renderDraftThumbs() {
   });
 }
 
+function getRenderedImageRect(stageEl, imgEl) {
+  const stageW = stageEl.clientWidth;
+  const stageH = stageEl.clientHeight;
+  const natW = imgEl.naturalWidth || stageW;
+  const natH = imgEl.naturalHeight || stageH;
+  if (!stageW || !stageH || !natW || !natH) {
+    return { x: 0, y: 0, w: stageW, h: stageH };
+  }
+  const stageRatio = stageW / stageH;
+  const imgRatio = natW / natH;
+  if (imgRatio > stageRatio) {
+    const w = stageW;
+    const h = stageW / imgRatio;
+    return { x: 0, y: (stageH - h) / 2, w, h };
+  } else {
+    const h = stageH;
+    const w = stageH * imgRatio;
+    return { x: (stageW - w) / 2, y: 0, w, h };
+  }
+}
+
 function syncCropStageWithActiveDraft() {
   const stage = document.getElementById("cropStage");
   const img = document.getElementById("cropPreviewImg");
@@ -367,26 +388,32 @@ function syncCropStageWithActiveDraft() {
   }
 
   stage.style.display = "block";
-  img.onload = () => {
+  const renderBox = () => {
     cCanvas.width = stage.clientWidth;
     cCanvas.height = stage.clientHeight;
     drawCropOverlay(draftSamples[activeDraftIndex].box2d);
   };
+  img.onload = renderBox;
   img.src = draftSamples[activeDraftIndex].dataUrl;
+  if (img.complete) renderBox();
 }
 
 function drawCropOverlay(box2d) {
+  const stage = document.getElementById("cropStage");
+  const img = document.getElementById("cropPreviewImg");
   const cCanvas = document.getElementById("cropCanvas");
-  if (!cCanvas) return;
+  if (!stage || !img || !cCanvas) return;
+
   const cCtx = cCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
   if (!box2d) return;
 
+  const r = getRenderedImageRect(stage, img);
   const [ymin, xmin, ymax, xmax] = box2d;
-  const x = (xmin / 1000) * cCanvas.width;
-  const y = (ymin / 1000) * cCanvas.height;
-  const w = ((xmax - xmin) / 1000) * cCanvas.width;
-  const h = ((ymax - ymin) / 1000) * cCanvas.height;
+  const x = r.x + (xmin / 1000) * r.w;
+  const y = r.y + (ymin / 1000) * r.h;
+  const w = ((xmax - xmin) / 1000) * r.w;
+  const h = ((ymax - ymin) / 1000) * r.h;
 
   cCtx.strokeStyle = "#00b884";
   cCtx.lineWidth = 3;
@@ -406,16 +433,15 @@ window.resetCropBox = function () {
 function initCropCanvasEvents() {
   const cCanvas = document.getElementById("cropCanvas");
   const stage = document.getElementById("cropStage");
-  if (!cCanvas) return;
+  const img = document.getElementById("cropPreviewImg");
+  if (!cCanvas || !stage || !img) return;
 
   const preventLongPressMenu = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
   cCanvas.addEventListener("contextmenu", preventLongPressMenu);
-  if (stage) {
-    stage.addEventListener("contextmenu", preventLongPressMenu);
-  }
+  stage.addEventListener("contextmenu", preventLongPressMenu);
 
   const getPos = (e) => {
     const rect = cCanvas.getBoundingClientRect();
@@ -425,33 +451,39 @@ function initCropCanvasEvents() {
     return {
       x: Math.max(0, Math.min(rect.width, clientX - rect.left)),
       y: Math.max(0, Math.min(rect.height, clientY - rect.top)),
-      w: rect.width,
-      h: rect.height,
     };
+  };
+
+  const toNormalizedBox = (p1, p2) => {
+    const r = getRenderedImageRect(stage, img);
+    const clampX = (v) => Math.max(r.x, Math.min(r.x + r.w, v));
+    const clampY = (v) => Math.max(r.y, Math.min(r.y + r.h, v));
+    const x1 = clampX(Math.min(p1.x, p2.x));
+    const y1 = clampY(Math.min(p1.y, p2.y));
+    const x2 = clampX(Math.max(p1.x, p2.x));
+    const y2 = clampY(Math.max(p1.y, p2.y));
+    return [
+      Math.round(((y1 - r.y) / Math.max(1, r.h)) * 1000),
+      Math.round(((x1 - r.x) / Math.max(1, r.w)) * 1000),
+      Math.round(((y2 - r.y) / Math.max(1, r.h)) * 1000),
+      Math.round(((x2 - r.x) / Math.max(1, r.w)) * 1000),
+    ];
   };
 
   const onDown = (e) => {
     if (activeDraftIndex < 0) return;
     if (e.cancelable) e.preventDefault();
-    cCanvas.width = cCanvas.clientWidth;
-    cCanvas.height = cCanvas.clientHeight;
+    cCanvas.width = stage.clientWidth;
+    cCanvas.height = stage.clientHeight;
     cropDragStart = getPos(e);
+    cropCurrentRect = null;
   };
 
   const onMove = (e) => {
     if (!cropDragStart || activeDraftIndex < 0) return;
     if (e.cancelable) e.preventDefault();
     const pos = getPos(e);
-    const x1 = Math.min(cropDragStart.x, pos.x);
-    const y1 = Math.min(cropDragStart.y, pos.y);
-    const x2 = Math.max(cropDragStart.x, pos.x);
-    const y2 = Math.max(cropDragStart.y, pos.y);
-    cropCurrentRect = [
-      Math.round((y1 / pos.h) * 1000),
-      Math.round((x1 / pos.w) * 1000),
-      Math.round((y2 / pos.h) * 1000),
-      Math.round((x2 / pos.w) * 1000),
-    ];
+    cropCurrentRect = toNormalizedBox(cropDragStart, pos);
     drawCropOverlay(cropCurrentRect);
   };
 
@@ -460,9 +492,10 @@ function initCropCanvasEvents() {
     cropDragStart = null;
     if (cropCurrentRect && activeDraftIndex >= 0) {
       const [ymin, xmin, ymax, xmax] = cropCurrentRect;
-      if (xmax - xmin > 40 && ymax - ymin > 40) {
+      if (xmax - xmin >= 15 && ymax - ymin >= 15) {
         draftSamples[activeDraftIndex].box2d = cropCurrentRect;
       }
+      drawCropOverlay(draftSamples[activeDraftIndex].box2d);
     }
     cropCurrentRect = null;
   };
@@ -859,7 +892,6 @@ window.updateTarget = async function () {
     return;
   }
 
-  // 登録アイテムの名前と同じまま「決定」を押した場合は、登録名と視覚プロンプトを維持する
   if (selectedVisualItem && keyword === selectedVisualItem.name) {
     currentFinalizedKeyword = selectedVisualItem.name;
     updateActiveVisualBanner();
@@ -871,7 +903,6 @@ window.updateTarget = async function () {
     return;
   }
 
-  // 別の言葉に変更された場合は見本モードを解除してテキスト検索へ切り替え
   if (selectedVisualItem && keyword !== selectedVisualItem.name) {
     selectedVisualItem = null;
     updateActiveVisualBanner();
@@ -947,7 +978,6 @@ window.startDetection = async function () {
     }
 
     if (selectedVisualItem) {
-      // 入力欄が空または登録名と同じなら登録名を維持
       if (!inputVal || inputVal === selectedVisualItem.name) {
         currentFinalizedKeyword = selectedVisualItem.name;
         if (inputElement) inputElement.value = selectedVisualItem.name;
