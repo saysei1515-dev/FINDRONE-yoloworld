@@ -248,7 +248,6 @@ function endTargetLoadingState() {
   clearBoundingBoxCanvas();
 }
 
-// 画面遷移
 window.goToTab = function (tabName) {
   document.querySelectorAll(".tab-content").forEach((el) => el.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
@@ -406,12 +405,23 @@ window.resetCropBox = function () {
 
 function initCropCanvasEvents() {
   const cCanvas = document.getElementById("cropCanvas");
+  const stage = document.getElementById("cropStage");
   if (!cCanvas) return;
+
+  const preventLongPressMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  cCanvas.addEventListener("contextmenu", preventLongPressMenu);
+  if (stage) {
+    stage.addEventListener("contextmenu", preventLongPressMenu);
+  }
 
   const getPos = (e) => {
     const rect = cCanvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    const clientX = touch ? touch.clientX : e.clientX;
+    const clientY = touch ? touch.clientY : e.clientY;
     return {
       x: Math.max(0, Math.min(rect.width, clientX - rect.left)),
       y: Math.max(0, Math.min(rect.height, clientY - rect.top)),
@@ -422,7 +432,7 @@ function initCropCanvasEvents() {
 
   const onDown = (e) => {
     if (activeDraftIndex < 0) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     cCanvas.width = cCanvas.clientWidth;
     cCanvas.height = cCanvas.clientHeight;
     cropDragStart = getPos(e);
@@ -430,7 +440,7 @@ function initCropCanvasEvents() {
 
   const onMove = (e) => {
     if (!cropDragStart || activeDraftIndex < 0) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     const pos = getPos(e);
     const x1 = Math.min(cropDragStart.x, pos.x);
     const y1 = Math.min(cropDragStart.y, pos.y);
@@ -593,7 +603,6 @@ function selectRegisteredItemForSearch(id) {
   setStatus(`🎯 見本「${found.name}」を選択しました`, "#247a5d");
 }
 
-// 入力されたIPまたはngrok URLをベースURLに整える
 function buildBaseUrl(rawInput) {
   let cleaned = (rawInput || "").trim().replace(/\/+$/, "");
   if (!cleaned) return "";
@@ -849,17 +858,30 @@ window.updateTarget = async function () {
     alert("探すものを入力してください！");
     return;
   }
+
+  // 登録アイテムの名前と同じまま「決定」を押した場合は、登録名と視覚プロンプトを維持する
+  if (selectedVisualItem && keyword === selectedVisualItem.name) {
+    currentFinalizedKeyword = selectedVisualItem.name;
+    updateActiveVisualBanner();
+    if (isSearching) {
+      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#247a5d");
+    } else {
+      setStatus(`🎯 見本「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
+    }
+    return;
+  }
+
+  // 別の言葉に変更された場合は見本モードを解除してテキスト検索へ切り替え
+  if (selectedVisualItem && keyword !== selectedVisualItem.name) {
+    selectedVisualItem = null;
+    updateActiveVisualBanner();
+  }
+
   if (!rawServerInput) {
     alert("サーバーのURLまたはIPアドレスを入力してください！");
     goToTab("setting");
     if (serverIpInput) serverIpInput.focus();
     return;
-  }
-
-  // 手動で別の言葉を打ち込んだ場合は見本モードを解除
-  if (!selectedVisualItem || selectedVisualItem.name !== keyword) {
-    selectedVisualItem = null;
-    updateActiveVisualBanner();
   }
 
   beginTargetLoadingState();
@@ -925,7 +947,15 @@ window.startDetection = async function () {
     }
 
     if (selectedVisualItem) {
-      currentFinalizedKeyword = selectedVisualItem.name;
+      // 入力欄が空または登録名と同じなら登録名を維持
+      if (!inputVal || inputVal === selectedVisualItem.name) {
+        currentFinalizedKeyword = selectedVisualItem.name;
+        if (inputElement) inputElement.value = selectedVisualItem.name;
+      } else {
+        selectedVisualItem = null;
+        updateActiveVisualBanner();
+        await window.updateTarget();
+      }
     } else if (inputVal) {
       await window.updateTarget();
     }
