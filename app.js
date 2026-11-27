@@ -29,6 +29,7 @@ let draftSamples = [];
 let activeDraftIndex = -1;
 let editingItemId = null; // 編集中アイテムのID（新規登録時は null）
 let selectedVisualItem = null;
+let visualSampleCursor = 0; // 複数見本を順番に使うためのインデックス
 
 // 見本画像クロップ用状態（「切り抜く」ボタンを押したときだけ有効）
 let isCropModeActive = false;
@@ -457,7 +458,6 @@ function syncSamplePreviewUI() {
     counterLabel.innerText = `見本 ${activeDraftIndex + 1} / ${draftSamples.length}${croppedBadge}`;
   }
 
-  // 通常表示は切り抜き済みなら切り抜き画像、なければ元画像を表示（再切り抜き時は元画像を使う）
   previewImg.src = sample.croppedDataUrl || sample.dataUrl;
   if (!isCropModeActive) {
     previewImg.style.display = "block";
@@ -483,7 +483,6 @@ window.toggleCropMode = function () {
   const actionBar = document.getElementById("cropActionBar");
   if (!cropCanvas) return;
 
-  // 再切り抜きしやすいように元画像（dataUrl）を読み込む
   const img = new Image();
   img.onload = function () {
     const stage = document.getElementById("cropStage");
@@ -520,7 +519,8 @@ window.cancelCropMode = function () {
   exitCropModeInternal(true);
 };
 
-function createCroppedDataUrlFromCanvasRect(sourceImg, canvasEl, x1, y1, x2, y2, outSize = 224) {
+// 切り抜いた長方形のアスペクト比（縦横比）をそのまま維持して保存する（黒帯なし）
+function createCroppedDataUrlFromCanvasRect(sourceImg, canvasEl, x1, y1, x2, y2, maxOutSide = 320) {
   const rx = Math.max(0, Math.min(canvasEl.width, Math.min(x1, x2)));
   const ry = Math.max(0, Math.min(canvasEl.height, Math.min(y1, y2)));
   const rw = Math.max(0, Math.min(canvasEl.width - rx, Math.abs(x2 - x1)));
@@ -537,20 +537,15 @@ function createCroppedDataUrlFromCanvasRect(sourceImg, canvasEl, x1, y1, x2, y2,
   const sw = Math.max(1, Math.min(natW - sx, rw * scaleX));
   const sh = Math.max(1, Math.min(natH - sy, rh * scaleY));
 
+  const scale = Math.min(1, maxOutSide / Math.max(sw, sh));
+  const outW = Math.max(1, Math.round(sw * scale));
+  const outH = Math.max(1, Math.round(sh * scale));
+
   const cropOutCanvas = document.createElement("canvas");
-  cropOutCanvas.width = outSize;
-  cropOutCanvas.height = outSize;
+  cropOutCanvas.width = outW;
+  cropOutCanvas.height = outH;
   const outCtx = cropOutCanvas.getContext("2d");
-  outCtx.fillStyle = "#000000";
-  outCtx.fillRect(0, 0, outSize, outSize);
-
-  const fitScale = Math.min(outSize / sw, outSize / sh);
-  const dw = Math.max(1, Math.round(sw * fitScale));
-  const dh = Math.max(1, Math.round(sh * fitScale));
-  const dx = Math.round((outSize - dw) / 2);
-  const dy = Math.round((outSize - dh) / 2);
-
-  outCtx.drawImage(sourceImg, sx, sy, sw, sh, dx, dy, dw, dh);
+  outCtx.drawImage(sourceImg, sx, sy, sw, sh, 0, 0, outW, outH);
   return cropOutCanvas.toDataURL("image/jpeg", 0.85);
 }
 
@@ -743,6 +738,7 @@ window.saveRegisteredObject = function () {
       };
       if (selectedVisualItem && selectedVisualItem.id === editingItemId) {
         selectedVisualItem = registeredItems[idx];
+        visualSampleCursor = 0;
         updateActiveVisualBanner();
       }
     }
@@ -856,7 +852,7 @@ function updateActiveVisualBanner() {
   if (!banner || !label) return;
   if (selectedVisualItem) {
     banner.style.display = "flex";
-    label.innerText = `🖼️ 見本で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚)`;
+    label.innerText = `🖼️ 見本で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚を順次利用)`;
   } else {
     banner.style.display = "none";
     label.innerText = "";
@@ -865,6 +861,7 @@ function updateActiveVisualBanner() {
 
 window.clearSelectedVisualItem = function () {
   selectedVisualItem = null;
+  visualSampleCursor = 0;
   updateActiveVisualBanner();
 };
 
@@ -872,12 +869,13 @@ function selectRegisteredItemForSearch(id) {
   const found = registeredItems.find((it) => it.id === id);
   if (!found) return;
   selectedVisualItem = found;
+  visualSampleCursor = 0;
   currentFinalizedKeyword = found.name;
   const inputElement = document.getElementById("targetObject");
   if (inputElement) inputElement.value = found.name;
   updateActiveVisualBanner();
   goToTab("search");
-  setStatus(`🎯 見本「${found.name}」を選択しました`, "#247a5d");
+  setStatus(`🎯 見本「${found.name}」(${found.samples.length}枚)を選択しました`, "#247a5d");
 }
 
 function buildBaseUrl(rawInput) {
@@ -1139,9 +1137,10 @@ window.updateTarget = async function () {
 
   if (selectedVisualItem && keyword === selectedVisualItem.name) {
     currentFinalizedKeyword = selectedVisualItem.name;
+    visualSampleCursor = 0;
     updateActiveVisualBanner();
     if (isSearching) {
-      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#247a5d");
+      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」(${selectedVisualItem.samples.length}枚)をYOLOEで探索中...`, "#247a5d");
     } else {
       setStatus(`🎯 見本「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
     }
@@ -1150,6 +1149,7 @@ window.updateTarget = async function () {
 
   if (selectedVisualItem && keyword !== selectedVisualItem.name) {
     selectedVisualItem = null;
+    visualSampleCursor = 0;
     updateActiveVisualBanner();
   }
 
@@ -1235,6 +1235,7 @@ window.startDetection = async function () {
       await window.updateTarget();
     }
 
+    visualSampleCursor = 0;
     resetFoundNotifyState();
 
     conn.send({
@@ -1250,7 +1251,7 @@ window.startDetection = async function () {
     }
     setStatus(
       selectedVisualItem
-        ? `🖼️ 見本「${selectedVisualItem.name}」をYOLOEで探索中...`
+        ? `🖼️ 見本「${selectedVisualItem.name}」(${selectedVisualItem.samples.length}枚)をYOLOEで探索中...`
         : `🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`,
       "#247a5d"
     );
@@ -1262,6 +1263,7 @@ window.startDetection = async function () {
   } else {
     isSearching = false;
     clearInterval(searchTimer);
+    visualSampleCursor = 0;
     resetFoundNotifyState();
     endTargetLoadingState();
 
@@ -1323,10 +1325,14 @@ async function sendFrameToPC(serverInput, keyword) {
     formData.append("keyword", requestedKeyword);
 
     if (selectedVisualItem && Array.isArray(selectedVisualItem.samples) && selectedVisualItem.samples.length > 0) {
-      const sample = selectedVisualItem.samples[0];
+      const sampleCount = selectedVisualItem.samples.length;
+      const sampleIdx = visualSampleCursor % sampleCount;
+      visualSampleCursor = (visualSampleCursor + 1) % sampleCount;
+
+      const sample = selectedVisualItem.samples[sampleIdx];
       const refBlob = await dataUrlToBlob(sample.croppedDataUrl || sample.dataUrl);
       formData.append("mode", "visual");
-      formData.append("ref_image", refBlob, "ref.jpg");
+      formData.append("ref_image", refBlob, `ref_${sampleIdx}.jpg`);
       if (!sample.croppedDataUrl && Array.isArray(sample.box2d)) {
         formData.append("ref_box_2d", JSON.stringify(sample.box2d));
       }
