@@ -39,7 +39,6 @@
       overflow-y: auto;
     }
 
-    /* タブ切り替え制御 */
     .tab-content {
       display: none;
       flex-direction: column;
@@ -59,7 +58,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* トップタイトル */
     .app-header {
       text-align: center;
       margin: 8px 0 12px;
@@ -70,7 +68,6 @@
       text-transform: uppercase;
     }
 
-    /* 統一感のあるガラスカード */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
@@ -84,7 +81,6 @@
       box-shadow: 0 12px 28px rgba(206, 156, 188, 0.2);
     }
 
-    /* ホームロゴ＆バッジ＆ドローン画像 */
     .brand-block {
       display: flex;
       flex-direction: column;
@@ -122,7 +118,6 @@
       filter: drop-shadow(0 6px 14px rgba(176, 134, 162, 0.22));
     }
 
-    /* 入力フォーム類 */
     .input-wrapper {
       position: relative;
       width: 100%;
@@ -162,7 +157,6 @@
       box-shadow: 0 0 0 4px rgba(242, 140, 184, 0.18);
     }
 
-    /* 通知音スイッチカード */
     .notify-setting-box {
       width: 100%;
       background: #fff7fb;
@@ -191,7 +185,6 @@
       gap: 8px;
     }
 
-    /* スライド式トグルスイッチ */
     .switch-btn {
       position: relative;
       width: 68px;
@@ -233,7 +226,6 @@
       transform: translate(34px, -50%);
     }
 
-    /* 押せるボタン共通スタイル */
     button {
       font-family: inherit;
       border: 2px solid rgba(255, 255, 255, 0.92);
@@ -471,7 +463,6 @@
       box-shadow: 0 2px 6px rgba(180, 60, 85, 0.28);
     }
 
-    /* 事前登録タブ用スタイル（既存カードと調和） */
     .active-visual-bar {
       width: 100%;
       background: #e9fbf5;
@@ -519,6 +510,9 @@
       overflow: hidden;
       display: none;
       touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .crop-stage img {
@@ -527,7 +521,10 @@
       object-fit: contain;
       display: block;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
       -webkit-user-drag: none;
+      pointer-events: none;
     }
 
     .crop-canvas {
@@ -537,6 +534,10 @@
       height: 100%;
       z-index: 2;
       cursor: crosshair;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .register-hint {
@@ -646,7 +647,6 @@
       color: #6b2234;
     }
 
-    /* フッター固定ナビゲーション */
     .nav-bar {
       position: fixed;
       left: 0;
@@ -695,7 +695,6 @@
       background: #e9fbf5;
     }
 
-    /* 履歴モーダル */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -965,7 +964,6 @@
       <input type="file" id="registerCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleRegisterFiles(this.files)" />
       <input type="file" id="registerGalleryInput" accept="image/*" multiple style="display: none;" onchange="handleRegisterFiles(this.files)" />
 
-      <!-- 見本枠のドラッグ指定エリア -->
       <div id="cropStage" class="crop-stage">
         <img id="cropPreviewImg" alt="見本プレビュー" />
         <canvas id="cropCanvas" class="crop-canvas"></canvas>
@@ -994,38 +992,31 @@
     <div class="app-header">search</div>
 
     <div class="glass-card">
-      <!-- 選択中の登録見本バナー（使用中のみ表示） -->
       <div id="activeVisualBanner" class="active-visual-bar">
         <span id="activeVisualLabel">🖼️ 見本で探索中</span>
         <button type="button" class="btn-mini-clear" onclick="clearSelectedVisualItem()">解除</button>
       </div>
 
-      <!-- 検索ワード（初期値は空欄） -->
       <div class="input-wrapper">
         <input type="text" id="targetObject" value="" placeholder="探す物体を入力してください" autocomplete="off" />
         <button class="btn-decision" onclick="updateTarget()">決定</button>
       </div>
 
-      <!-- 探索開始／探索終了ボタン（トグル式） -->
       <button id="startButton" onclick="startDetection()" disabled>探索開始</button>
       <button id="stopButton" onclick="stopDetection()" style="display: none;"></button>
 
-      <!-- カメラ映像エリア -->
       <div class="viewfinder-outer">
         <video id="video" autoplay playsinline muted></video>
         <canvas id="outputCanvas"></canvas>
       </div>
 
-      <!-- ステータス表示 -->
       <div class="status-area" id="status">ステータス: PCと接続してください</div>
 
-      <!-- フォルダボタン（右上に未読追加枚数バッジ） -->
       <button id="folderBtn" onclick="openHistoryFolder()">
         📂 発見した物体一覧
         <span id="unreadPhotosBadge" class="folder-unread-badge">0</span>
       </button>
 
-      <!-- 発見通知バナー -->
       <div id="foundToast">
         <span id="foundToastText" class="toast-message-text"></span>
         <span id="detectedCountBadge" class="toast-count-badge">×0</span>
