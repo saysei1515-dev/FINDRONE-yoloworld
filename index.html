@@ -17,23 +17,27 @@
       --ink-main: #23182e;
       --ink-sub: #746485;
 
-      /* 機能別カラー（決定・接続・保存＝パープル／開始・ON・QR＝エメラルド／終了・閉じる・停止＝ローズ） */
+      /* 機能別カラー */
       --fn-purple: #7c3aed;
       --fn-purple-hover: #6d28d9;
+      --fn-purple-depth: #5b21b6;
       --fn-purple-soft: #f3e8ff;
+      --fn-purple-pill-depth: #ddd6fe;
 
       --fn-emerald: #10b981;
       --fn-emerald-hover: #059669;
+      --fn-emerald-depth: #047857;
       --fn-emerald-dark: #047857;
       --fn-emerald-soft: #ecfdf5;
       --fn-emerald-border: #a7f3d0;
 
       --fn-rose: #e11d48;
       --fn-rose-hover: #be123c;
+      --fn-rose-depth: #9f1239;
       --fn-rose-soft: #fff1f2;
       --fn-rose-border: #fecdd3;
 
-      --shadow-card: 0 10px 26px rgba(124, 58, 237, 0.08);
+      --shadow-card: 0 12px 28px rgba(124, 58, 237, 0.08);
     }
 
     * {
@@ -108,13 +112,13 @@
       padding: 8px 14px;
       border-radius: 999px;
       border: 1px solid var(--border-soft);
-      background-color: var(--card-white);
+      background: linear-gradient(180deg, #ffffff 0%, #faf7ff 100%);
       color: var(--ink-main);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(124, 58, 237, 0.06);
-      transition: transform 0.12s ease, background-color 0.15s ease;
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #e2d8f3, 0 6px 12px rgba(124, 58, 237, 0.08);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
     .history-top-btn i {
@@ -123,7 +127,8 @@
     }
 
     .history-top-btn:active {
-      transform: scale(0.97);
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 #e2d8f3, 0 2px 6px rgba(124, 58, 237, 0.08);
     }
 
     .unread-badge {
@@ -170,6 +175,7 @@
       object-fit: contain;
       display: block;
       margin: 0 auto 10px;
+      filter: drop-shadow(0 6px 10px rgba(16, 185, 129, 0.16));
     }
 
     .home-drone-fallback {
@@ -198,6 +204,7 @@
       border: 1px solid var(--border-soft);
       border-radius: 18px;
       padding: 12px 14px;
+      box-shadow: inset 0 1px 0 #ffffff;
     }
 
     .home-nav-pill {
@@ -211,31 +218,38 @@
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.12s ease, background-color 0.15s ease;
-    }
-
-    .home-nav-pill:active {
-      transform: scale(0.98);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
     }
 
     .home-nav-pill.search-pill {
-      background-color: var(--fn-emerald);
+      background: linear-gradient(180deg, #18c78d 0%, var(--fn-emerald) 100%);
       color: #ffffff;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 0 var(--fn-emerald-depth), 0 10px 18px rgba(16, 185, 129, 0.24);
     }
 
     .home-nav-pill.search-pill:hover {
-      background-color: var(--fn-emerald-hover);
+      background: linear-gradient(180deg, #10b981 0%, var(--fn-emerald-hover) 100%);
+    }
+
+    .home-nav-pill.search-pill:active {
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 var(--fn-emerald-depth), 0 3px 8px rgba(16, 185, 129, 0.2);
     }
 
     .home-nav-pill.setting-pill {
-      background-color: var(--fn-purple-soft);
+      background: linear-gradient(180deg, #faf5ff 0%, var(--fn-purple-soft) 100%);
       color: var(--fn-purple-hover);
       border: 1px solid #ddd6fe;
+      box-shadow: inset 0 1px 0 #ffffff, 0 4px 0 var(--fn-purple-pill-depth), 0 8px 16px rgba(124, 58, 237, 0.1);
     }
 
     .home-nav-pill.setting-pill:hover {
-      background-color: #e9d5ff;
+      background: linear-gradient(180deg, #f3e8ff 0%, #e9d5ff 100%);
+    }
+
+    .home-nav-pill.setting-pill:active {
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 var(--fn-purple-pill-depth), 0 3px 8px rgba(124, 58, 237, 0.08);
     }
 
     .home-pill-left {
@@ -249,7 +263,7 @@
     }
 
     .home-note {
-      margin: 8px 6px 0;
+      margin: 9px 6px 0;
       font-size: 12px;
       color: var(--ink-sub);
       line-height: 1.5;
@@ -278,6 +292,7 @@
       color: var(--ink-main);
       font-size: 14px;
       font-weight: 600;
+      box-shadow: inset 0 2px 4px rgba(124, 58, 237, 0.06), 0 1px 0 #ffffff;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
@@ -289,10 +304,10 @@
     .round-input:focus {
       outline: none;
       border-color: var(--fn-purple);
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
+      box-shadow: inset 0 2px 4px rgba(124, 58, 237, 0.06), 0 0 0 3px rgba(124, 58, 237, 0.15);
     }
 
-    /* 機能別ボタン */
+    /* 立体感ある機能別ボタン */
     .btn-decide {
       display: inline-flex;
       align-items: center;
@@ -301,22 +316,23 @@
       padding: 11px 18px;
       border-radius: 999px;
       border: none;
-      background-color: var(--fn-purple);
+      background: linear-gradient(180deg, #8b5cf6 0%, var(--fn-purple) 100%);
       color: #ffffff;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
-      box-shadow: 0 5px 14px rgba(124, 58, 237, 0.24);
-      transition: transform 0.12s ease, background-color 0.15s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 4px 0 var(--fn-purple-depth), 0 8px 16px rgba(124, 58, 237, 0.24);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
     }
 
     .btn-decide:hover {
-      background-color: var(--fn-purple-hover);
+      background: linear-gradient(180deg, #7c3aed 0%, var(--fn-purple-hover) 100%);
     }
 
     .btn-decide:active {
-      transform: scale(0.97);
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 0 var(--fn-purple-depth), 0 2px 8px rgba(124, 58, 237, 0.2);
     }
 
     .btn-search-action {
@@ -328,21 +344,22 @@
       padding: 12px 18px;
       border-radius: 999px;
       border: none;
-      background-color: var(--fn-emerald);
+      background: linear-gradient(180deg, #18c78d 0%, var(--fn-emerald) 100%);
       color: #ffffff;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
-      transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 0 var(--fn-emerald-depth), 0 10px 18px rgba(16, 185, 129, 0.25);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, opacity 0.15s ease;
     }
 
     .btn-search-action:hover:not(:disabled) {
-      background-color: var(--fn-emerald-hover);
+      background: linear-gradient(180deg, #10b981 0%, var(--fn-emerald-hover) 100%);
     }
 
     .btn-search-action:active:not(:disabled) {
-      transform: scale(0.98);
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 0 var(--fn-emerald-depth), 0 3px 8px rgba(16, 185, 129, 0.2);
     }
 
     .btn-search-action:disabled {
@@ -352,12 +369,17 @@
     }
 
     .btn-search-action.is-stop {
-      background-color: var(--fn-rose);
-      box-shadow: 0 6px 16px rgba(225, 29, 72, 0.24);
+      background: linear-gradient(180deg, #fb7185 0%, var(--fn-rose) 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 4px 0 var(--fn-rose-depth), 0 10px 18px rgba(225, 29, 72, 0.24);
     }
 
     .btn-search-action.is-stop:hover:not(:disabled) {
-      background-color: var(--fn-rose-hover);
+      background: linear-gradient(180deg, #f43f5e 0%, var(--fn-rose-hover) 100%);
+    }
+
+    .btn-search-action.is-stop:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 0 var(--fn-rose-depth), 0 3px 8px rgba(225, 29, 72, 0.2);
     }
 
     /* カメラ枠と付近の「表示／閉じる」ボタン */
@@ -402,25 +424,33 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 7px 15px;
       border-radius: 999px;
       border: 1px solid var(--fn-emerald-border);
-      background-color: var(--fn-emerald-soft);
+      background: linear-gradient(180deg, #ffffff 0%, var(--fn-emerald-soft) 100%);
       color: var(--fn-emerald-dark);
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #86efac, 0 6px 12px rgba(16, 185, 129, 0.14);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-camera-switch:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 #86efac, 0 2px 6px rgba(16, 185, 129, 0.12);
     }
 
     .btn-camera-switch.is-closed {
       border-color: var(--fn-rose-border);
-      background-color: var(--fn-rose-soft);
+      background: linear-gradient(180deg, #ffffff 0%, var(--fn-rose-soft) 100%);
       color: var(--fn-rose);
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #fda4af, 0 6px 12px rgba(225, 29, 72, 0.14);
     }
 
-    .btn-camera-switch:active {
-      transform: scale(0.97);
+    .btn-camera-switch.is-closed:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 #fda4af, 0 2px 6px rgba(225, 29, 72, 0.12);
     }
 
     .camera-viewport {
@@ -430,6 +460,7 @@
       border-radius: 16px;
       background-color: #191122;
       overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
     .camera-viewport video,
@@ -486,6 +517,7 @@
       opacity: 0;
       pointer-events: none;
       cursor: pointer;
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #86efac;
       transition: opacity 0.15s ease;
     }
 
@@ -563,6 +595,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-shadow: inset 0 1px 0 #ffffff;
     }
 
     .camera-id-group label {
@@ -578,26 +611,34 @@
       padding: 10px 16px;
       border-radius: 999px;
       border: 1px solid var(--fn-emerald-border);
-      background-color: var(--fn-emerald-soft);
+      background: linear-gradient(180deg, #ffffff 0%, var(--fn-emerald-soft) 100%);
       color: var(--fn-emerald-dark);
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #86efac, 0 6px 12px rgba(16, 185, 129, 0.14);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
 
     .btn-qr-pill:hover {
-      background-color: #d1fae5;
+      background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
     }
 
     .btn-qr-pill:active {
-      transform: scale(0.98);
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 #86efac, 0 2px 6px rgba(16, 185, 129, 0.12);
     }
 
     .btn-qr-pill.is-stop {
       border-color: var(--fn-rose-border);
-      background-color: var(--fn-rose-soft);
+      background: linear-gradient(180deg, #ffffff 0%, var(--fn-rose-soft) 100%);
       color: var(--fn-rose);
+      box-shadow: inset 0 1px 0 #ffffff, 0 3px 0 #fda4af, 0 6px 12px rgba(225, 29, 72, 0.14);
+    }
+
+    .btn-qr-pill.is-stop:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 #fda4af, 0 2px 6px rgba(225, 29, 72, 0.12);
     }
 
     #qr-reader {
@@ -606,7 +647,7 @@
       border: 1px solid var(--border-soft);
     }
 
-    /* 左右スライド式の単一スイッチ（ON / OFF） */
+    /* 左右スライド式の単一スイッチ（ツマミ：左＝OFF／右＝ON） */
     .setting-switch-row {
       display: flex;
       align-items: center;
@@ -616,6 +657,7 @@
       border-radius: 18px;
       border: 1px solid var(--border-soft);
       background-color: var(--card-soft);
+      box-shadow: inset 0 1px 0 #ffffff;
     }
 
     .setting-switch-left {
@@ -636,6 +678,7 @@
       justify-content: center;
       font-size: 17px;
       flex-shrink: 0;
+      box-shadow: 0 2px 0 #e8def8;
     }
 
     .setting-switch-title {
@@ -654,51 +697,57 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      width: 78px;
-      height: 34px;
-      padding: 0 10px;
+      width: 82px;
+      height: 36px;
+      padding: 0;
       border-radius: 999px;
       border: none;
-      background-color: #e2d9ee;
+      background-color: #dfd5ec;
       color: var(--ink-sub);
       font-size: 11px;
       font-weight: 900;
       cursor: pointer;
       flex-shrink: 0;
+      box-shadow: inset 0 2px 4px rgba(35, 24, 46, 0.16), 0 2px 0 #ffffff;
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     .slide-switch-btn.is-on {
-      background-color: var(--fn-emerald);
+      background: linear-gradient(180deg, #18c78d 0%, var(--fn-emerald) 100%);
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      box-shadow: inset 0 2px 4px rgba(4, 120, 87, 0.25), 0 2px 0 #ffffff;
     }
 
     .slide-switch-knob {
       position: absolute;
       top: 3px;
       left: 3px;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 999px;
-      background-color: #ffffff;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.22);
       transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
+    /* ツマミが右にあるとき＝ON状態 */
     .slide-switch-btn.is-on .slide-switch-knob {
-      transform: translateX(44px);
+      transform: translateX(46px);
     }
 
-    .slide-switch-text {
+    /* ツマミが左にあるときは右側に「OFF」、右にあるときは左側に「ON」を表示 */
+    .slide-switch-label {
+      position: relative;
       z-index: 1;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2px;
+      padding: 0 11px;
+      text-align: right;
+      letter-spacing: 0.04em;
       pointer-events: none;
+    }
+
+    .slide-switch-btn.is-on .slide-switch-label {
+      text-align: left;
     }
 
     .btn-save-pill {
@@ -710,21 +759,22 @@
       padding: 13px 18px;
       border-radius: 999px;
       border: none;
-      background-color: var(--fn-purple);
+      background: linear-gradient(180deg, #8b5cf6 0%, var(--fn-purple) 100%);
       color: #ffffff;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25);
-      transition: transform 0.12s ease, background-color 0.15s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 4px 0 var(--fn-purple-depth), 0 10px 18px rgba(124, 58, 237, 0.25);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
     }
 
     .btn-save-pill:hover {
-      background-color: var(--fn-purple-hover);
+      background: linear-gradient(180deg, #7c3aed 0%, var(--fn-purple-hover) 100%);
     }
 
     .btn-save-pill:active {
-      transform: scale(0.98);
+      transform: translateY(3px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 0 var(--fn-purple-depth), 0 3px 8px rgba(124, 58, 237, 0.2);
     }
 
     /* 下部ナビゲーション（3タブ） */
@@ -770,6 +820,7 @@
     .nav-btn.active {
       background-color: var(--fn-purple-soft);
       color: var(--fn-purple-hover);
+      box-shadow: inset 0 1px 0 #ffffff, 0 2px 0 var(--fn-purple-pill-depth);
     }
 
     /* モーダル */
@@ -834,12 +885,14 @@
       cursor: pointer;
       background-color: var(--card-white);
       color: var(--ink-main);
+      box-shadow: 0 2px 0 #e5dcf3;
     }
 
     .btn-clear-history {
       border-color: var(--fn-rose-border);
       background-color: var(--fn-rose-soft);
       color: var(--fn-rose);
+      box-shadow: 0 2px 0 #fda4af;
     }
 
     .modal-body {
@@ -1100,7 +1153,7 @@
                 class="btn-camera-switch"
                 onclick="toggleCameraView()"
               >
-                <i class="bi bi-camera-video-off"></i>
+                <i class="bi bi-eye-slash-fill"></i>
                 <span id="cameraToggleLabel">閉じる</span>
               </button>
             </div>
@@ -1178,10 +1231,7 @@
                 onclick="toggleAlwaysCameraSetting()"
               >
                 <span class="slide-switch-knob"></span>
-                <span class="slide-switch-text">
-                  <span>OFF</span>
-                  <span>ON</span>
-                </span>
+                <span id="alwaysCameraStateLabel" class="slide-switch-label">ON</span>
               </button>
             </div>
 
@@ -1202,10 +1252,7 @@
                 onclick="toggleNotificationSetting()"
               >
                 <span class="slide-switch-knob"></span>
-                <span class="slide-switch-text">
-                  <span>OFF</span>
-                  <span>ON</span>
-                </span>
+                <span id="notifyStateLabel" class="slide-switch-label">OFF</span>
               </button>
             </div>
 
