@@ -23,7 +23,7 @@ let currentFinalizedKeyword = "";
 let latestDetectedObjectName = "";
 let hasAutoConnected = false;
 
-// カメラ表示状態（true = 表示中 / 閉じるボタン表示, false = 閉じ中 / カメラを起動ボタン表示）
+// カメラ表示状態（true = 表示中 / 閉じるボタン表示, false = 閉じ中 / 表示ボタン表示）
 let isCameraViewOpen = true;
 let isAlwaysCameraEnabled = true;
 
@@ -105,9 +105,14 @@ window.toggleCameraView = function () {
 
 function syncAlwaysCameraUi() {
   const btn = document.getElementById("alwaysCameraBtn");
-  if (!btn) return;
-  btn.classList.toggle("is-on", isAlwaysCameraEnabled);
-  btn.setAttribute("aria-checked", String(isAlwaysCameraEnabled));
+  const label = document.getElementById("alwaysCameraStateLabel");
+  if (btn) {
+    btn.classList.toggle("is-on", isAlwaysCameraEnabled);
+    btn.setAttribute("aria-checked", String(isAlwaysCameraEnabled));
+  }
+  if (label) {
+    label.innerText = isAlwaysCameraEnabled ? "ON" : "OFF";
+  }
 }
 
 window.setAlwaysCameraEnabled = function (enabled) {
@@ -202,9 +207,14 @@ function clearBoundingBoxCanvas() {
 
 function updateNotificationUi() {
   const btn = document.getElementById("notifyToggleBtn");
-  if (!btn) return;
-  btn.classList.toggle("is-on", isNotificationEnabled);
-  btn.setAttribute("aria-checked", String(isNotificationEnabled));
+  const label = document.getElementById("notifyStateLabel");
+  if (btn) {
+    btn.classList.toggle("is-on", isNotificationEnabled);
+    btn.setAttribute("aria-checked", String(isNotificationEnabled));
+  }
+  if (label) {
+    label.innerText = isNotificationEnabled ? "ON" : "OFF";
+  }
 }
 
 window.setNotificationEnabled = function (enabled) {
