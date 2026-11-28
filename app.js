@@ -19,6 +19,7 @@ let isUpdatingTarget = false; // サーバーへ新しい物体名を送信・�
 let targetUpdateSafetyTimer = null;
 let lastSaveTime = 0;
 let currentFinalizedKeyword = "";
+let latestDetectedObjectName = "";
 let hasAutoConnected = false;
 
 // 通知（アプリ内トースト＆Web Audio通知音）用
@@ -41,19 +42,33 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#a2759e") {
+function setStatus(text, color = "#7a6382") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#8c7388") {
+function setConnectionStatus(text, color = "#7a6382") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
     connStatus.style.color = color;
   }
+}
+
+function syncSearchVisualState() {
+  const pill = document.getElementById("searchLivePill");
+  const pillText = document.getElementById("searchLiveText");
+  const cameraCard = document.getElementById("cameraCard");
+
+  if (pill) pill.classList.toggle("is-searching", isSearching);
+  if (pillText) {
+    pillText.innerText = isSearching
+      ? `ACTIVE${currentFinalizedKeyword ? ` · ${currentFinalizedKeyword}` : ""}`
+      : "STANDBY";
+  }
+  if (cameraCard) cameraCard.classList.toggle("is-searching", isSearching);
 }
 
 function updateUnreadPhotosBadge() {
@@ -74,8 +89,9 @@ function hideFoundBannerAndBadge() {
   const toastTextEl = document.getElementById("foundToastText");
   const badge = document.getElementById("detectedCountBadge");
 
+  latestDetectedObjectName = "";
   if (toastTextEl) toastTextEl.innerText = "";
-  if (toastEl) toastEl.style.display = "none";
+  if (toastEl) toastEl.classList.remove("is-visible");
   if (badge) {
     badge.innerText = "×0";
     badge.style.display = "none";
@@ -106,8 +122,9 @@ function updateBannerAndCount(detections) {
   const objectName = (primary.label || fallbackName || "未分類").trim();
   const confText = primary.confidence !== undefined ? ` (${primary.confidence})` : "";
 
-  toastTextEl.innerText = `🎉「${objectName}」を発見しました！${confText}`;
-  toastEl.style.display = "flex";
+  latestDetectedObjectName = objectName;
+  toastTextEl.innerText = `🎉「${objectName}」を発見！${confText}`;
+  toastEl.classList.add("is-visible");
 
   if (count > 0) {
     badge.innerText = `×${count}`;
@@ -117,6 +134,19 @@ function updateBannerAndCount(detections) {
     badge.style.display = "none";
   }
 }
+
+window.openFoundObjectFolder = function () {
+  unreadPhotosCount = 0;
+  updateUnreadPhotosBadge();
+  const targetFolder =
+    latestDetectedObjectName && historyByObject[latestDetectedObjectName]
+      ? latestDetectedObjectName
+      : null;
+  selectedObjectFolder = targetFolder;
+  renderHistoryModal();
+  const modal = document.getElementById("historyFolderModal");
+  if (modal) modal.style.display = "flex";
+};
 
 function clearBoundingBoxCanvas() {
   if (ctx && canvas) {
@@ -277,6 +307,7 @@ function initSavedSettings() {
   updateNotificationUi();
   hideFoundBannerAndBadge();
   updateUnreadPhotosBadge();
+  syncSearchVisualState();
 }
 
 function tryAutoConnectIfNeeded() {
@@ -308,7 +339,7 @@ window.saveAllSettings = function () {
     localStorage.setItem(AUTO_CONNECT_KEY, "true");
     localStorage.setItem(NOTIFY_ENABLED_KEY, String(isNotificationEnabled));
 
-    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#2e7d63");
+    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#059669");
     if (rawId) {
       window.connectToPC();
     }
@@ -337,7 +368,7 @@ if (peer) {
         video.srcObject = remoteStream;
       }
       webcamRunning = true;
-      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#247a5d");
+      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#059669");
     });
   });
 
@@ -356,7 +387,7 @@ window.connectToServerOnly = function () {
   try {
     localStorage.setItem(SERVER_URL_STORAGE_KEY, url);
   } catch (e) {}
-  setConnectionStatus("サーバーURLを保存しました", "#2e7d63");
+  setConnectionStatus("サーバーURLを保存しました", "#059669");
   alert("サーバーのアドレスを登録しました");
 };
 
@@ -383,8 +414,8 @@ window.connectToPC = function () {
 
   conn = peer.connect(pcId);
   conn.on("open", () => {
-    setStatus("ステータス: PC接続完了 ✅", "#247a5d");
-    setConnectionStatus("ステータス: 接続完了 ✅", "#2e7d63");
+    setStatus("ステータス: PC接続完了 ✅", "#059669");
+    setConnectionStatus("ステータス: 接続完了 ✅", "#059669");
     if (startButton) {
       startButton.disabled = false;
       if (isSearching) {
@@ -399,8 +430,8 @@ window.connectToPC = function () {
 
   conn.on("error", (err) => {
     console.error("Peer接続エラー:", err);
-    setStatus("エラー: PCとの接続に失敗しました", "#c94a63");
-    setConnectionStatus("ステータス: 接続に失敗しました ✕", "#c94a63");
+    setStatus("エラー: PCとの接続に失敗しました", "#e11d48");
+    setConnectionStatus("ステータス: 接続に失敗しました ✕", "#e11d48");
   });
 };
 
@@ -448,8 +479,8 @@ window.toggleQrScanner = async function () {
             btn.classList.remove("active-stop");
           }
           readerContainer.style.display = "none";
-          setStatus("✅ IDを取得しました！設定保存か接続を押してください", "#247a5d");
-          setConnectionStatus("✅ IDを取得しました！「この設定で保存」または「接続」を押してください", "#2e7d63");
+          setStatus("✅ IDを取得しました！設定保存か接続を押してください", "#059669");
+          setConnectionStatus("✅ IDを取得しました！「この設定で保存」または「接続」を押してください", "#059669");
         },
         () => {}
       );
@@ -528,16 +559,18 @@ window.updateTarget = async function () {
 
     if (inputElement) inputElement.value = translatedWord;
     currentFinalizedKeyword = translatedWord;
+    syncSearchVisualState();
 
     if (isSearching) {
-      setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中... (変更適用)`, "#247a5d");
+      setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#059669");
     } else {
-      setStatus(`🎯 「${keyword}」➔ 英語: [${currentFinalizedKeyword}] に設定しました`, "#247a5d");
+      setStatus(`🎯 「${keyword}」➔ 英語: [${currentFinalizedKeyword}] に設定しました`, "#059669");
     }
   } catch (err) {
     console.error(err);
     currentFinalizedKeyword = keyword;
-    setStatus(`⚠️ 翻訳に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#c94a63");
+    syncSearchVisualState();
+    setStatus(`⚠️ 翻訳に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#e11d48");
   } finally {
     endTargetLoadingState();
   }
@@ -581,11 +614,12 @@ window.startDetection = async function () {
     });
 
     isSearching = true;
+    syncSearchVisualState();
     if (startButton) {
       startButton.innerText = "探索終了";
       startButton.classList.add("active-stop");
     }
-    setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#247a5d");
+    setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#059669");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -593,6 +627,7 @@ window.startDetection = async function () {
     }, 500);
   } else {
     isSearching = false;
+    syncSearchVisualState();
     clearInterval(searchTimer);
     resetFoundNotifyState();
     endTargetLoadingState();
@@ -610,7 +645,7 @@ window.startDetection = async function () {
       startButton.innerText = "探索開始";
       startButton.classList.remove("active-stop");
     }
-    setStatus("ステータス: 停止しました", "#8c7388");
+    setStatus("ステータス: 停止しました", "#7a6382");
   }
 };
 
@@ -721,22 +756,22 @@ function drawDetections(detections) {
     const w = ((xmax - xmin) / 1000) * renderWidth;
     const h = ((ymax - ymin) / 1000) * renderHeight;
 
-    ctx.strokeStyle = "#00e676";
+    ctx.strokeStyle = "#10b981";
     ctx.lineWidth = 3.5;
     ctx.strokeRect(x, y, w, h);
 
     const labelText = `${det.label} (${det.confidence})`;
     ctx.font = "bold 13px sans-serif";
     const textWidth = ctx.measureText(labelText).width;
-    const badgeW = Math.max(w, textWidth + 12);
+    const badgeW = Math.max(w, textWidth + 14);
     const badgeH = 22;
-    const badgeY = y > badgeH + 2 ? y - badgeH - 2 : y + 2;
+    const badgeY = y > badgeH + 3 ? y - badgeH - 3 : y + 3;
 
-    ctx.fillStyle = "rgba(181, 242, 214, 0.92)";
+    ctx.fillStyle = "rgba(16, 185, 129, 0.92)";
     ctx.fillRect(x, badgeY, badgeW, badgeH);
 
-    ctx.fillStyle = "#1f4d3d";
-    ctx.fillText(labelText, x + 6, badgeY + 15);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(labelText, x + 7, badgeY + 15);
 
     const objectName = (det.label || currentFinalizedKeyword || "未分類").trim();
     tryPlaySoundForObject(objectName);
