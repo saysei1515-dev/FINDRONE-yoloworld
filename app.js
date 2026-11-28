@@ -68,10 +68,10 @@ function syncSearchVisualState() {
 
   if (startButton) {
     if (isSearching) {
-      startButton.innerText = "探索終了";
+      startButton.innerHTML = `<i class="bi bi-stop-fill"></i><span>探索終了</span>`;
       startButton.classList.add("is-stop");
     } else {
-      startButton.innerText = "探索開始";
+      startButton.innerHTML = `<i class="bi bi-play-fill"></i><span>探索開始</span>`;
       startButton.classList.remove("is-stop");
     }
   }
@@ -94,7 +94,7 @@ function syncCameraViewUi() {
     toggleBtn.classList.toggle("is-camera-open", isCameraViewOpen);
     toggleBtn.innerHTML = isCameraViewOpen
       ? `<i class="bi bi-camera-video-off"></i><span>閉じる</span>`
-      : `<i class="bi bi-camera-video"></i><span>カメラを起動</span>`;
+      : `<i class="bi bi-camera-video-fill"></i><span>カメラを起動</span>`;
   }
 }
 
@@ -509,7 +509,7 @@ window.toggleQrScanner = async function () {
 
     readerContainer.style.display = "block";
     if (btn) {
-      btn.innerHTML = `<i class="bi bi-stop-circle"></i> <span>停止</span>`;
+      btn.innerHTML = `<i class="bi bi-stop-circle-fill"></i><span>停止</span>`;
       btn.classList.add("is-stop");
     }
     isScanning = true;
@@ -535,7 +535,7 @@ window.toggleQrScanner = async function () {
           }
           isScanning = false;
           if (btn) {
-            btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span>QRコード読み取り</span>`;
+            btn.innerHTML = `<i class="bi bi-qr-code-scan"></i><span>QRコード読み取り</span>`;
             btn.classList.remove("is-stop");
           }
           readerContainer.style.display = "none";
@@ -548,7 +548,7 @@ window.toggleQrScanner = async function () {
       console.error(err);
       isScanning = false;
       if (btn) {
-        btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span>QRコード読み取り</span>`;
+        btn.innerHTML = `<i class="bi bi-qr-code-scan"></i><span>QRコード読み取り</span>`;
         btn.classList.remove("is-stop");
       }
       readerContainer.style.display = "none";
@@ -556,7 +556,7 @@ window.toggleQrScanner = async function () {
   } else {
     isScanning = false;
     if (btn) {
-      btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> <span>QRコード読み取り</span>`;
+      btn.innerHTML = `<i class="bi bi-qr-code-scan"></i><span>QRコード読み取り</span>`;
       btn.classList.remove("is-stop");
     }
     if (html5QrCode && html5QrCode.isScanning) {
