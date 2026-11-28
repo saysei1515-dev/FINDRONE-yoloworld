@@ -9,22 +9,19 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root {
-      --bg-cream: #fffaf5;
-      --bg-card: #ffffff;
-      --bg-soft: #fdf2f8;
-      --bg-input: #fffdf9;
-      --border-pastel: #f3d5e3;
-      --border-lavender: #dcd2f7;
-      --accent-pink: #ff85b3;
-      --accent-pink-soft: #ffe4ef;
-      --accent-lavender: #9b87f5;
-      --accent-lavender-soft: #ede9fe;
-      --accent-mint: #34d399;
-      --accent-mint-soft: #d1fae5;
-      --danger: #fb7185;
-      --danger-soft: #ffe4e6;
-      --text-main: #4a3f55;
-      --text-sub: #8b7d9b;
+      --bg-page: #f5f1ed;
+      --bg-app: #fcfaf7;
+      --bg-surface: #ffffff;
+      --bg-muted: #f3eee8;
+      --border-soft: #e3dbd2;
+      --text-main: #4a4340;
+      --text-sub: #8c827d;
+      --accent-pink: #e88d9c;
+      --accent-pink-bg: #fdf0f2;
+      --accent-green: #5ca883;
+      --accent-green-bg: #ebf7f0;
+      --danger: #d96b78;
+      --danger-bg: #fdeef0;
     }
 
     * {
@@ -35,7 +32,7 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
-      background-color: #f7eef5;
+      background-color: var(--bg-page);
       color: var(--text-main);
       min-height: 100vh;
     }
@@ -46,9 +43,10 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 80px;
-      background: linear-gradient(180deg, #fff6fa 0%, var(--bg-cream) 45%, #f5f9ff 100%);
-      box-shadow: 0 12px 36px rgba(155, 135, 245, 0.12);
+      padding-bottom: 72px;
+      background-color: var(--bg-app);
+      border-left: 1px solid var(--border-soft);
+      border-right: 1px solid var(--border-soft);
     }
 
     /* ヘッダー */
@@ -59,10 +57,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
-      background-color: rgba(255, 250, 245, 0.92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1.5px solid var(--border-pastel);
+      padding: 12px 16px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .header-title-group {
@@ -70,44 +67,41 @@
       align-items: center;
       gap: 8px;
       font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
+      font-weight: 700;
       color: var(--text-main);
     }
 
     .header-title-group i {
       color: var(--accent-pink);
-      font-size: 18px;
     }
 
     .header-badge-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 13px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-lavender);
-      background-color: var(--bg-card);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-muted);
       color: var(--text-main);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(155, 135, 245, 0.12);
     }
 
     .unread-badge {
-      padding: 1px 7px;
+      padding: 1px 6px;
       border-radius: 999px;
       background-color: var(--accent-pink);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     /* メイン */
     .app-main {
       flex: 1;
-      padding: 18px;
+      padding: 16px;
     }
 
     .tab-content {
@@ -119,54 +113,57 @@
     }
 
     /* ボタン共通 */
-    .cute-btn {
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 11px 16px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-lavender);
-      background-color: var(--bg-card);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
       color: var(--text-main);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(155, 135, 245, 0.12);
-      transition: transform 0.12s ease, background-color 0.15s ease;
     }
 
-    .cute-btn:active:not(:disabled) {
-      transform: scale(0.97);
+    .btn:hover:not(:disabled) {
+      background-color: var(--bg-muted);
     }
 
-    .cute-btn:disabled {
+    .btn:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
-      box-shadow: none;
     }
 
-    .cute-btn-primary {
+    .btn-accent {
       border-color: var(--accent-pink);
-      background: linear-gradient(135deg, #ff9ec4 0%, #ff7eb0 100%);
-      color: #ffffff;
-      box-shadow: 0 6px 16px rgba(255, 133, 179, 0.32);
+      background-color: var(--accent-pink-bg);
+      color: #b84b5e;
     }
 
-    .cute-btn.active-stop {
+    .btn-accent:hover:not(:disabled) {
+      background-color: #fae1e6;
+    }
+
+    .btn.active-stop {
       border-color: var(--danger);
-      background-color: var(--danger-soft);
-      color: #be123c;
-      box-shadow: none;
+      background-color: var(--danger-bg);
+      color: #b43847;
     }
 
-    .cute-btn-sm {
-      padding: 10px 15px;
+    .btn-sm {
+      padding: 10px 14px;
       font-size: 13px;
       white-space: nowrap;
     }
 
-    .cute-btn-block {
+    .btn-block {
       width: 100%;
     }
 
@@ -175,110 +172,38 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 6px;
+      padding-top: 16px;
     }
 
     .drone-hero {
-      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 18px;
-      margin-bottom: 20px;
-      border-radius: 24px;
-      background-color: var(--bg-card);
-      border: 1.5px solid var(--border-pastel);
-      box-shadow: 0 8px 24px rgba(255, 133, 179, 0.12);
+      margin-bottom: 24px;
     }
 
     .drone-svg {
-      width: 88px;
-      height: 72px;
+      width: 84px;
+      height: 68px;
       stroke: var(--accent-pink);
-      fill: var(--accent-pink-soft);
-      stroke-width: 2.6;
+      fill: var(--accent-pink-bg);
+      stroke-width: 2.5;
     }
 
     .home-brand-text {
       margin-top: 6px;
       font-size: 20px;
       font-weight: 800;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       color: var(--text-main);
     }
 
-    .home-subtitle {
-      margin-top: 4px;
-      font-size: 12px;
-      color: var(--text-sub);
-    }
-
-    .home-menu-list {
+    .home-menu-stack {
       width: 100%;
+      max-width: 320px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-    }
-
-    .home-menu-card {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-card);
-      color: var(--text-main);
-      text-align: left;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(155, 135, 245, 0.08);
-      transition: transform 0.12s ease, border-color 0.15s ease;
-    }
-
-    .home-menu-card:hover {
-      border-color: var(--accent-pink);
-      transform: translateY(-1px);
-    }
-
-    .home-menu-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .home-menu-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: var(--accent-pink-soft);
-      color: #e11d74;
-      font-size: 17px;
-      flex-shrink: 0;
-    }
-
-    .home-menu-icon.lavender {
-      background-color: var(--accent-lavender-soft);
-      color: #6d28d9;
-    }
-
-    .home-menu-icon.mint {
-      background-color: var(--accent-mint-soft);
-      color: #059669;
-    }
-
-    .home-menu-title {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .home-menu-desc {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-top: 2px;
     }
 
     /* 探す画面 */
@@ -288,29 +213,28 @@
       gap: 12px;
     }
 
-    .search-top-bar {
+    .search-status-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
     }
 
     .status-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border-lavender);
-      background-color: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
       color: var(--text-sub);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .status-chip.is-active {
-      border-color: var(--accent-mint);
-      background-color: var(--accent-mint-soft);
-      color: #047857;
+      border-color: var(--accent-green);
+      background-color: var(--accent-green-bg);
+      color: #2f7a56;
     }
 
     .row-split {
@@ -319,23 +243,22 @@
       align-items: center;
     }
 
-    .cute-input {
+    .input-box {
       flex: 1;
       min-width: 0;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-input);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
       color: var(--text-main);
       font-size: 14px;
-      font-weight: 600;
     }
 
-    .cute-input::placeholder {
-      color: #b7a8c7;
+    .input-box::placeholder {
+      color: #b5aba5;
     }
 
-    .cute-input:focus {
+    .input-box:focus {
       outline: none;
       border-color: var(--accent-pink);
     }
@@ -345,16 +268,14 @@
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
-      border-radius: 22px;
-      border: 2px solid var(--border-pastel);
-      background-color: var(--bg-card);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
       overflow: hidden;
-      box-shadow: 0 8px 20px rgba(155, 135, 245, 0.12);
     }
 
     .camera-frame-box.is-searching {
-      border-color: var(--accent-mint);
-      box-shadow: 0 8px 24px rgba(52, 211, 153, 0.24);
+      border-color: var(--accent-green);
     }
 
     .camera-frame-box video,
@@ -375,44 +296,40 @@
       inset: 0;
       z-index: 4;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background-color: rgba(255, 250, 245, 0.78);
-      backdrop-filter: blur(4px);
+      background-color: rgba(252, 250, 247, 0.82);
     }
 
     .camera-toggle-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 1.5px solid var(--accent-pink);
-      background-color: var(--bg-card);
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--accent-pink);
+      background-color: var(--bg-surface);
       color: var(--text-main);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(255, 133, 179, 0.2);
     }
 
     .camera-open-mini-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       z-index: 6;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-pastel);
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
       background-color: rgba(255, 255, 255, 0.9);
       color: var(--text-main);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
     }
 
@@ -426,12 +343,12 @@
       min-height: 44px;
       max-height: 44px;
       padding: 0 14px;
-      border-radius: 999px;
-      border: 1.5px solid var(--accent-mint);
-      background-color: var(--accent-mint-soft);
-      color: #065f46;
+      border-radius: 10px;
+      border: 1px solid var(--accent-green);
+      background-color: var(--accent-green-bg);
+      color: #266949;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       overflow: hidden;
       visibility: hidden;
       opacity: 0;
@@ -459,23 +376,22 @@
     }
 
     .detected-count-badge {
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
-      background-color: var(--accent-mint);
+      background-color: var(--accent-green);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .toast-folder-hint {
       font-size: 11px;
       text-decoration: underline;
-      color: #047857;
     }
 
     .status-line {
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-sub);
       text-align: center;
       min-height: 18px;
@@ -488,60 +404,45 @@
       gap: 12px;
     }
 
-    .setting-card {
-      padding: 14px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-card);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 14px rgba(155, 135, 245, 0.08);
-    }
-
     .setting-row-box {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 12px 16px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-card);
-      box-shadow: 0 4px 14px rgba(155, 135, 245, 0.08);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
     }
 
     .setting-row-label {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-main);
     }
 
-    /* app.js の toggleNotificationSetting / toggleAlwaysCameraSetting と直接連動するトグルボタン */
-    .switch-toggle-btn {
-      min-width: 72px;
-      padding: 7px 16px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-lavender);
-      background-color: #f3effc;
+    .toggle-pill-btn {
+      min-width: 64px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-muted);
       color: var(--text-sub);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
-    .switch-toggle-btn.is-on {
-      border-color: var(--accent-mint);
-      background-color: var(--accent-mint-soft);
-      color: #047857;
-      box-shadow: 0 3px 10px rgba(52, 211, 153, 0.25);
+    .toggle-pill-btn.is-on {
+      border-color: var(--accent-green);
+      background-color: var(--accent-green-bg);
+      color: #266949;
     }
 
     #qr-reader {
-      border-radius: 16px;
+      border-radius: 10px;
       overflow: hidden;
-      border: 1.5px solid var(--border-lavender);
+      border: 1px solid var(--border-soft);
     }
 
     /* 下部ナビゲーション */
@@ -556,10 +457,9 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 8px 12px;
-      background-color: rgba(255, 250, 245, 0.95);
-      backdrop-filter: blur(10px);
-      border-top: 1.5px solid var(--border-pastel);
+      padding: 6px 12px;
+      background-color: var(--bg-surface);
+      border-top: 1px solid var(--border-soft);
     }
 
     .nav-item {
@@ -568,15 +468,14 @@
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 6px 8px;
+      padding: 5px 8px;
       border: none;
-      border-radius: 14px;
+      border-radius: 8px;
       background: transparent;
       color: var(--text-sub);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
     .nav-item i {
@@ -584,8 +483,8 @@
     }
 
     .nav-item.active {
-      color: #e11d74;
-      background-color: var(--accent-pink-soft);
+      color: #b84b5e;
+      background-color: var(--accent-pink-bg);
     }
 
     /* モーダル */
@@ -597,8 +496,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(74, 63, 85, 0.45);
-      backdrop-filter: blur(4px);
+      background-color: rgba(74, 67, 64, 0.42);
       padding: 16px;
     }
 
@@ -608,12 +506,11 @@
       max-height: 82vh;
       display: flex;
       flex-direction: column;
-      border-radius: 22px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-cream);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-app);
       color: var(--text-main);
       overflow: hidden;
-      box-shadow: 0 14px 32px rgba(74, 63, 85, 0.2);
     }
 
     .modal-header {
@@ -622,8 +519,8 @@
       justify-content: space-between;
       gap: 8px;
       padding: 12px 14px;
-      background-color: var(--bg-card);
-      border-bottom: 1px solid var(--border-pastel);
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .modal-header-left,
@@ -636,26 +533,26 @@
     .modal-header h3 {
       margin: 0;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .btn-back-folder,
     .btn-clear-history,
     .btn-close-modal {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border-lavender);
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      background-color: var(--bg-soft);
+      background-color: var(--bg-muted);
       color: var(--text-main);
     }
 
     .btn-clear-history {
       border-color: var(--danger);
-      background-color: var(--danger-soft);
-      color: #be123c;
+      background-color: var(--danger-bg);
+      color: #b43847;
     }
 
     .modal-body {
@@ -672,9 +569,9 @@
     .folder-card {
       position: relative;
       padding: 10px;
-      border-radius: 16px;
-      border: 1.5px solid var(--border-pastel);
-      background-color: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-surface);
       text-align: center;
       cursor: pointer;
     }
@@ -683,8 +580,8 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 12px;
-      background-color: var(--bg-soft);
+      border-radius: 8px;
+      background-color: var(--bg-muted);
     }
 
     .folder-name {
@@ -720,8 +617,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-pastel);
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
       cursor: pointer;
     }
 
@@ -736,7 +633,7 @@
       background-color: var(--danger);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
     }
 
@@ -762,20 +659,19 @@
     .preview-image {
       max-width: 92vw;
       max-height: 75vh;
-      border-radius: 18px;
-      border: 2.5px solid #ffffff;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+      border: 2px solid #ffffff;
     }
 
     .preview-time-badge {
       margin-top: 10px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background-color: var(--bg-card);
-      border: 1.5px solid var(--border-pastel);
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-soft);
       color: var(--text-main);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .preview-hint {
@@ -789,11 +685,11 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="header-title-group">
-        <i class="bi bi-stars"></i>
+        <i class="bi bi-search-heart"></i>
         <span id="headerTitleText">FINDRONE</span>
       </div>
       <button type="button" class="header-badge-btn" onclick="openHistoryFolder()">
-        <i class="bi bi-folder-heart"></i>
+        <i class="bi bi-folder2-open"></i>
         <span>発見履歴</span>
         <span id="unreadPhotosBadge" class="unread-badge" style="display: none;">0</span>
       </button>
@@ -809,47 +705,26 @@
               <circle cx="78" cy="20" r="12" />
               <line x1="31" y1="28" x2="43" y2="39" />
               <line x1="69" y1="28" x2="57" y2="39" />
-              <rect x="38" y="36" width="24" height="22" rx="8" />
+              <rect x="38" y="36" width="24" height="22" rx="7" />
               <circle cx="50" cy="47" r="4.5" />
               <line x1="42" y1="58" x2="36" y2="68" />
               <line x1="58" y1="58" x2="64" y2="68" />
             </svg>
             <div class="home-brand-text">FINDRONE</div>
-            <div class="home-subtitle">ほっこり物体さがしサポート</div>
           </div>
 
-          <div class="home-menu-list">
-            <button type="button" class="home-menu-card" onclick="goToTab('search')">
-              <div class="home-menu-left">
-                <div class="home-menu-icon"><i class="bi bi-search-heart"></i></div>
-                <div>
-                  <div class="home-menu-title">探す</div>
-                  <div class="home-menu-desc">探したい物体の名前から検知します</div>
-                </div>
-              </div>
-              <i class="bi bi-chevron-right"></i>
+          <div class="home-menu-stack">
+            <button type="button" class="btn btn-accent btn-block" onclick="goToTab('search')">
+              <i class="bi bi-search"></i>
+              <span>探す</span>
             </button>
-
-            <button type="button" class="home-menu-card" onclick="goToTab('setting')">
-              <div class="home-menu-left">
-                <div class="home-menu-icon lavender"><i class="bi bi-sliders2-vertical"></i></div>
-                <div>
-                  <div class="home-menu-title">設定</div>
-                  <div class="home-menu-desc">サーバID・カメラID・通知音・表示設定</div>
-                </div>
-              </div>
-              <i class="bi bi-chevron-right"></i>
+            <button type="button" class="btn btn-block" onclick="goToTab('setting')">
+              <i class="bi bi-gear"></i>
+              <span>設定</span>
             </button>
-
-            <button type="button" class="home-menu-card" onclick="openHistoryFolder()">
-              <div class="home-menu-left">
-                <div class="home-menu-icon mint"><i class="bi bi-folder-heart"></i></div>
-                <div>
-                  <div class="home-menu-title">発見履歴</div>
-                  <div class="home-menu-desc">見つけた物体の写真をまとめて確認</div>
-                </div>
-              </div>
-              <i class="bi bi-chevron-right"></i>
+            <button type="button" class="btn btn-block" onclick="openHistoryFolder()">
+              <i class="bi bi-folder2-open"></i>
+              <span>発見履歴</span>
             </button>
           </div>
         </div>
@@ -858,7 +733,7 @@
       <!-- ================= 探す（search）画面 ================= -->
       <div id="searchTab" class="tab-content">
         <div class="search-screen">
-          <div class="search-top-bar">
+          <div class="search-status-row">
             <div id="searchStatusChip" class="status-chip">
               <span id="searchStatusText">待機中</span>
             </div>
@@ -868,11 +743,11 @@
             <input
               type="text"
               id="targetObject"
-              class="cute-input"
+              class="input-box"
               placeholder="探す物体を入力"
               autocomplete="off"
             />
-            <button type="button" class="cute-btn cute-btn-primary cute-btn-sm" onclick="updateTarget()">
+            <button type="button" class="btn btn-accent btn-sm" onclick="updateTarget()">
               決定
             </button>
           </div>
@@ -880,7 +755,7 @@
           <button
             type="button"
             id="startButton"
-            class="cute-btn cute-btn-primary cute-btn-block"
+            class="btn btn-accent btn-block"
             onclick="startDetection()"
             disabled
           >
@@ -939,44 +814,42 @@
       <!-- ================= 設定（setting）画面 ================= -->
       <div id="settingTab" class="tab-content">
         <div class="setting-screen">
-          <div class="setting-card">
-            <div class="row-split">
-              <input
-                type="text"
-                id="serverIp"
-                class="cute-input"
-                placeholder="サーバIDを入力"
-              />
-              <button type="button" class="cute-btn cute-btn-sm" onclick="connectToServerOnly()">
-                接続
-              </button>
-            </div>
-
-            <div class="row-split">
-              <input
-                type="text"
-                id="pcIdInput"
-                class="cute-input"
-                placeholder="カメラIDを入力"
-              />
-              <button type="button" class="cute-btn cute-btn-sm" onclick="connectToPC()">
-                接続
-              </button>
-            </div>
-
-            <button type="button" id="btn-qr" class="cute-btn cute-btn-block" onclick="toggleQrScanner()">
-              <i class="bi bi-qr-code-scan"></i>
-              <span id="qrBtnLabel">QRコード読み取り</span>
+          <div class="row-split">
+            <input
+              type="text"
+              id="serverIp"
+              class="input-box"
+              placeholder="サーバIDを入力"
+            />
+            <button type="button" class="btn btn-sm" onclick="connectToServerOnly()">
+              接続
             </button>
-            <div id="qr-reader" style="display: none;"></div>
           </div>
+
+          <div class="row-split">
+            <input
+              type="text"
+              id="pcIdInput"
+              class="input-box"
+              placeholder="カメラIDを入力"
+            />
+            <button type="button" class="btn btn-sm" onclick="connectToPC()">
+              接続
+            </button>
+          </div>
+
+          <button type="button" id="btn-qr" class="btn btn-block" onclick="toggleQrScanner()">
+            <i class="bi bi-qr-code-scan"></i>
+            <span id="qrBtnLabel">QRコード読み取り</span>
+          </button>
+          <div id="qr-reader" style="display: none;"></div>
 
           <div class="setting-row-box">
             <span class="setting-row-label">通知音</span>
             <button
               type="button"
               id="notifyToggleBtn"
-              class="switch-toggle-btn"
+              class="toggle-pill-btn"
               onclick="toggleNotificationSetting()"
             >
               OFF
@@ -988,14 +861,14 @@
             <button
               type="button"
               id="alwaysCameraBtn"
-              class="switch-toggle-btn is-on"
+              class="toggle-pill-btn is-on"
               onclick="toggleAlwaysCameraSetting()"
             >
               ON
             </button>
           </div>
 
-          <button type="button" class="cute-btn cute-btn-primary cute-btn-block" onclick="saveAllSettings()">
+          <button type="button" class="btn btn-accent btn-block" onclick="saveAllSettings()">
             設定を保存
           </button>
 
@@ -1007,11 +880,11 @@
     <!-- 下部ナビゲーション（ホーム／探す／設定） -->
     <nav class="bottom-nav">
       <button type="button" id="nav-home" class="nav-item active" onclick="goToTab('home')">
-        <i class="bi bi-house-heart"></i>
+        <i class="bi bi-house"></i>
         <span>ホーム</span>
       </button>
       <button type="button" id="nav-search" class="nav-item" onclick="goToTab('search')">
-        <i class="bi bi-search-heart"></i>
+        <i class="bi bi-search"></i>
         <span>探す</span>
       </button>
       <button type="button" id="nav-setting" class="nav-item" onclick="goToTab('setting')">
