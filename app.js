@@ -47,14 +47,14 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#766587") {
+function setStatus(text, color = "#746485") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#766587") {
+function setConnectionStatus(text, color = "#746485") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
@@ -91,10 +91,10 @@ function syncCameraViewUi() {
     overlay.style.display = isCameraViewOpen ? "none" : "flex";
   }
   if (toggleBtn) {
-    toggleBtn.classList.toggle("is-camera-open", isCameraViewOpen);
+    toggleBtn.classList.toggle("is-closed", !isCameraViewOpen);
     toggleBtn.innerHTML = isCameraViewOpen
-      ? `<i class="bi bi-camera-video-off"></i><span>閉じる</span>`
-      : `<i class="bi bi-camera-video-fill"></i><span>カメラを起動</span>`;
+      ? `<i class="bi bi-eye-slash-fill"></i><span id="cameraToggleLabel">閉じる</span>`
+      : `<i class="bi bi-eye-fill"></i><span id="cameraToggleLabel">表示</span>`;
   }
 }
 
@@ -104,10 +104,10 @@ window.toggleCameraView = function () {
 };
 
 function syncAlwaysCameraUi() {
-  const onBtn = document.getElementById("alwaysCamOnBtn");
-  const offBtn = document.getElementById("alwaysCamOffBtn");
-  if (onBtn) onBtn.classList.toggle("is-selected", isAlwaysCameraEnabled);
-  if (offBtn) offBtn.classList.toggle("is-selected", !isAlwaysCameraEnabled);
+  const btn = document.getElementById("alwaysCameraBtn");
+  if (!btn) return;
+  btn.classList.toggle("is-on", isAlwaysCameraEnabled);
+  btn.setAttribute("aria-checked", String(isAlwaysCameraEnabled));
 }
 
 window.setAlwaysCameraEnabled = function (enabled) {
@@ -201,10 +201,10 @@ function clearBoundingBoxCanvas() {
 }
 
 function updateNotificationUi() {
-  const onBtn = document.getElementById("notifyOnBtn");
-  const offBtn = document.getElementById("notifyOffBtn");
-  if (onBtn) onBtn.classList.toggle("is-selected", isNotificationEnabled);
-  if (offBtn) offBtn.classList.toggle("is-selected", !isNotificationEnabled);
+  const btn = document.getElementById("notifyToggleBtn");
+  if (!btn) return;
+  btn.classList.toggle("is-on", isNotificationEnabled);
+  btn.setAttribute("aria-checked", String(isNotificationEnabled));
 }
 
 window.setNotificationEnabled = function (enabled) {
@@ -699,7 +699,7 @@ window.startDetection = async function () {
     }
     clearBoundingBoxCanvas();
 
-    setStatus("ステータス: 停止しました", "#766587");
+    setStatus("ステータス: 停止しました", "#746485");
   }
 };
 
