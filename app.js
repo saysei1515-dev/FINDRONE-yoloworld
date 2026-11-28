@@ -47,14 +47,14 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#4b7082") {
+function setStatus(text, color = "#446365") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#4b7082") {
+function setConnectionStatus(text, color = "#446365") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
@@ -415,7 +415,7 @@ window.saveAllSettings = function () {
     isCameraViewOpen = isAlwaysCameraEnabled;
     syncCameraViewUi();
 
-    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#0f766e");
+    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#1B7E7D");
     if (rawId) {
       window.connectToPC();
     }
@@ -444,7 +444,7 @@ if (peer) {
         video.srcObject = remoteStream;
       }
       webcamRunning = true;
-      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#0f766e");
+      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#1B7E7D");
     });
   });
 
@@ -463,7 +463,7 @@ window.connectToServerOnly = function () {
   try {
     localStorage.setItem(SERVER_URL_STORAGE_KEY, url);
   } catch (e) {}
-  setConnectionStatus("サーバIDを保存しました", "#0f766e");
+  setConnectionStatus("サーバIDを保存しました", "#1B7E7D");
   alert("サーバIDを登録しました");
 };
 
@@ -479,8 +479,8 @@ window.connectToPC = function () {
     return;
   }
 
-  setStatus("ステータス: カメラに接続中...", "#b45309");
-  setConnectionStatus("ステータス: カメラに接続中...", "#b45309");
+  setStatus("ステータス: カメラに接続中...", "#446365");
+  setConnectionStatus("ステータス: カメラに接続中...", "#446365");
 
   if (conn) {
     try {
@@ -490,8 +490,8 @@ window.connectToPC = function () {
 
   conn = peer.connect(pcId);
   conn.on("open", () => {
-    setStatus("ステータス: 接続完了", "#0f766e");
-    setConnectionStatus("ステータス: 接続完了", "#0f766e");
+    setStatus("ステータス: 接続完了", "#1B7E7D");
+    setConnectionStatus("ステータス: 接続完了", "#1B7E7D");
     if (startButton) {
       startButton.disabled = false;
     }
@@ -500,8 +500,8 @@ window.connectToPC = function () {
 
   conn.on("error", (err) => {
     console.error("Peer接続エラー:", err);
-    setStatus("エラー: 接続に失敗しました", "#e11d48");
-    setConnectionStatus("ステータス: 接続に失敗しました", "#e11d48");
+    setStatus("エラー: 接続に失敗しました", "#082627");
+    setConnectionStatus("ステータス: 接続に失敗しました", "#082627");
   });
 };
 
@@ -549,8 +549,8 @@ window.toggleQrScanner = async function () {
             btn.classList.remove("is-stop");
           }
           readerContainer.style.display = "none";
-          setStatus("IDを取得しました。設定を保存するか接続を押してください", "#0f766e");
-          setConnectionStatus("IDを取得しました。「設定を保存」または「接続」を押してください", "#0f766e");
+          setStatus("IDを取得しました。設定を保存するか接続を押してください", "#1B7E7D");
+          setConnectionStatus("IDを取得しました。「設定を保存」または「接続」を押してください", "#1B7E7D");
         },
         () => {}
       );
@@ -610,7 +610,7 @@ window.updateTarget = async function () {
   beginTargetLoadingState();
 
   const baseUrl = buildBaseUrl(rawServerInput);
-  setStatus("サーバで変換中...", "#b45309");
+  setStatus("サーバで変換中...", "#446365");
 
   try {
     const response = await fetch(`${baseUrl}/translate`, {
@@ -632,15 +632,15 @@ window.updateTarget = async function () {
     syncSearchVisualState();
 
     if (isSearching) {
-      setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#0f766e");
+      setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#1B7E7D");
     } else {
-      setStatus(`「${keyword}」→ [${currentFinalizedKeyword}] に設定しました`, "#0f766e");
+      setStatus(`「${keyword}」→ [${currentFinalizedKeyword}] に設定しました`, "#1B7E7D");
     }
   } catch (err) {
     console.error(err);
     currentFinalizedKeyword = keyword;
     syncSearchVisualState();
-    setStatus(`変換に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#e11d48");
+    setStatus(`変換に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#082627");
   } finally {
     endTargetLoadingState();
   }
@@ -687,7 +687,7 @@ window.startDetection = async function () {
     isCameraViewOpen = true;
     syncCameraViewUi();
     syncSearchVisualState();
-    setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#0f766e");
+    setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#1B7E7D");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -709,7 +709,7 @@ window.startDetection = async function () {
     }
     clearBoundingBoxCanvas();
 
-    setStatus("ステータス: 停止しました", "#4b7082");
+    setStatus("ステータス: 停止しました", "#446365");
   }
 };
 
@@ -820,7 +820,7 @@ function drawDetections(detections) {
     const w = ((xmax - xmin) / 1000) * renderWidth;
     const h = ((ymax - ymin) / 1000) * renderHeight;
 
-    ctx.strokeStyle = "#0d9488";
+    ctx.strokeStyle = "#28A6A5";
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
@@ -831,10 +831,10 @@ function drawDetections(detections) {
     const badgeH = 20;
     const badgeY = y > badgeH + 3 ? y - badgeH - 3 : y + 3;
 
-    ctx.fillStyle = "rgba(13, 148, 136, 0.92)";
+    ctx.fillStyle = "rgba(40, 166, 165, 0.94)";
     ctx.fillRect(x, badgeY, badgeW, badgeH);
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(labelText, x + 6, badgeY + 14);
 
     const objectName = (det.label || currentFinalizedKeyword || "未分類").trim();
