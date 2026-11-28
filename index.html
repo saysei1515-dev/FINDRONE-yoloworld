@@ -24,9 +24,11 @@
 
       --pal-text: #082627;
       --pal-text-sub: #446365;
-      --pal-dark-mid: #14393B;
-      --pal-dark-light: #225457;
-      --pal-dark-soft: #E4ECEC;
+
+      /* 停止・閉じる用レッド系 */
+      --stop-red-light: #FB7185;
+      --stop-red-mid: #E11D48;
+      --stop-red-deep: #BE123C;
 
       --shadow-card: 0 10px 24px rgba(8, 38, 39, 0.07);
       --btn-white-shadow: 0 4px 12px rgba(8, 38, 39, 0.14);
@@ -367,13 +369,14 @@
       box-shadow: none;
     }
 
+    /* 探索終了ボタン：赤系グラデーション＋白枠 */
     .btn-search-action.is-stop {
-      background: linear-gradient(135deg, var(--pal-dark-light) 0%, var(--pal-dark-mid) 60%, var(--pal-text) 100%);
+      background: linear-gradient(135deg, var(--stop-red-light) 0%, var(--stop-red-mid) 58%, var(--stop-red-deep) 100%);
       box-shadow: var(--btn-white-shadow);
     }
 
     .btn-search-action.is-stop:hover:not(:disabled) {
-      filter: brightness(1.08);
+      filter: brightness(1.05);
     }
 
     .btn-search-action.is-stop:active:not(:disabled) {
@@ -419,6 +422,7 @@
       color: var(--pal-accent);
     }
 
+    /* 閉じるボタン：赤系グラデーション＋白枠 */
     .btn-camera-switch {
       display: inline-flex;
       align-items: center;
@@ -426,8 +430,8 @@
       padding: 6px 13px;
       border-radius: 999px;
       border: 2px solid #FFFFFF;
-      background: linear-gradient(135deg, var(--pal-dark-soft) 0%, #D2DFDF 100%);
-      color: var(--pal-text);
+      background: linear-gradient(135deg, var(--stop-red-light) 0%, var(--stop-red-mid) 60%, var(--stop-red-deep) 100%);
+      color: #FFFFFF;
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
@@ -440,6 +444,7 @@
       box-shadow: var(--btn-white-shadow-press);
     }
 
+    /* 閉じているときの「表示」ボタン：ティール系＋白枠 */
     .btn-camera-switch.is-closed {
       background: linear-gradient(135deg, #FFFFFF 0%, var(--pal-accent-soft) 100%);
       color: var(--pal-accent-deep);
@@ -485,7 +490,7 @@
 
     .camera-closed-overlay i {
       font-size: 28px;
-      color: var(--pal-text);
+      color: var(--stop-red-mid);
     }
 
     /* 発見通知バー：高さを完全固定してカメラ枠や下の要素が上下に動かないようにする */
@@ -625,9 +630,10 @@
       box-shadow: var(--btn-white-shadow-press);
     }
 
+    /* QR停止ボタン：赤系グラデーション＋白枠 */
     .btn-qr-pill.is-stop {
-      background: linear-gradient(135deg, var(--pal-dark-soft) 0%, #D2DFDF 100%);
-      color: var(--pal-text);
+      background: linear-gradient(135deg, var(--stop-red-light) 0%, var(--stop-red-mid) 60%, var(--stop-red-deep) 100%);
+      color: #FFFFFF;
     }
 
     #qr-reader {
@@ -882,8 +888,8 @@
     }
 
     .btn-clear-history {
-      background-color: var(--pal-dark-soft);
-      color: var(--pal-text);
+      background: linear-gradient(135deg, var(--stop-red-light) 0%, var(--stop-red-mid) 100%);
+      color: #FFFFFF;
     }
 
     .modal-body {
@@ -961,7 +967,7 @@
       height: 20px;
       border-radius: 999px;
       border: 1.5px solid #FFFFFF;
-      background-color: var(--pal-text);
+      background-color: var(--stop-red-mid);
       color: #FFFFFF;
       font-size: 11px;
       font-weight: 800;
