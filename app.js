@@ -47,14 +47,14 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#64748b") {
+function setStatus(text, color = "#766587") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#64748b") {
+function setConnectionStatus(text, color = "#766587") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
@@ -699,7 +699,7 @@ window.startDetection = async function () {
     }
     clearBoundingBoxCanvas();
 
-    setStatus("ステータス: 停止しました", "#64748b");
+    setStatus("ステータス: 停止しました", "#766587");
   }
 };
 
