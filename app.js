@@ -9,7 +9,6 @@ const SERVER_URL_STORAGE_KEY = "findrone_colab_server_url";
 const CAMERA_ID_STORAGE_KEY = "findrone_colab_camera_id";
 const AUTO_CONNECT_KEY = "findrone_colab_auto_connect";
 const NOTIFY_ENABLED_KEY = "findrone_notify_enabled";
-const REGISTERED_ITEMS_KEY = "findrone_registered_visual_items_v1";
 
 const NOTIFY_REPEAT_COUNT = 10; // 通知音は2回目以降は10回検出ごと
 
@@ -21,26 +20,6 @@ let targetUpdateSafetyTimer = null;
 let lastSaveTime = 0;
 let currentFinalizedKeyword = "";
 let hasAutoConnected = false;
-let isTrainedWeightsReady = false;
-
-// 事前登録アイテム管理
-// { id, name, samples: [ { dataUrl, croppedDataUrl, box2d: [ymin, xmin, ymax, xmax] | null } ] }
-let registeredItems = [];
-let draftSamples = [];
-let activeDraftIndex = -1;
-let editingItemId = null; // 編集中アイテムのID（新規登録時は null）
-let selectedVisualItem = null;
-let visualSampleCursor = 0; // 複数見本を順番に使うためのインデックス
-
-// 見本画像クロップ用状態（「切り抜く」ボタンを押したときだけ有効）
-let isCropModeActive = false;
-let activeCropSourceImg = null;
-let isCropDrawing = false;
-let cropStartX = 0;
-let cropStartY = 0;
-let cropEndX = 0;
-let cropEndY = 0;
-let pendingCropRect = null; // { x1, y1, x2, y2 } in cropCanvas coords
 
 // 通知（アプリ内トースト＆Web Audio通知音）用
 let isNotificationEnabled = false;
@@ -114,7 +93,7 @@ function updateBannerAndCount(detections) {
     return;
   }
 
-  const fallbackName = selectedVisualItem ? selectedVisualItem.name : currentFinalizedKeyword;
+  const fallbackName = currentFinalizedKeyword;
   const targetKey = (fallbackName || "").trim().toLowerCase();
   const matched = detections.filter((det) => {
     if (!targetKey) return true;
@@ -219,8 +198,7 @@ function playFoundSound() {
 function tryPlaySoundForObject(objectName) {
   if (!isNotificationEnabled) return;
 
-  const fallback = selectedVisualItem ? selectedVisualItem.name : currentFinalizedKeyword;
-  const key = (objectName || fallback || "未分類").trim();
+  const key = (objectName || currentFinalizedKeyword || "未分類").trim();
   if (!notifySoundStateByObject[key]) {
     notifySoundStateByObject[key] = { hasPlayedOnce: false, count: 0 };
   }
@@ -267,667 +245,7 @@ window.goToTab = function (tabName) {
   const targetNav = document.getElementById(`nav-${tabName}`);
   if (targetTab) targetTab.classList.add("active");
   if (targetNav) targetNav.classList.add("active");
-
-  if (tabName === "register") {
-    renderRegisteredList();
-    renderDraftThumbs();
-    syncSamplePreviewUI();
-  }
 };
-
-// ================= 事前登録・見本切り抜き・編集管理 =================
-function loadRegisteredItems() {
-  try {
-    const raw = localStorage.getItem(REGISTERED_ITEMS_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        registeredItems = parsed;
-      }
-    }
-  } catch (err) {
-    console.warn("登録アイテムの読み込みに失敗:", err);
-  }
-}
-
-function persistRegisteredItems() {
-  try {
-    localStorage.setItem(REGISTERED_ITEMS_KEY, JSON.stringify(registeredItems));
-  } catch (err) {
-    console.warn("登録アイテムの保存に失敗:", err);
-    alert("保存容量の上限に達しました。不要な登録アイテムを減らしてください。");
-  }
-}
-
-function updateRegisterFormModeUI() {
-  const titleEl = document.getElementById("registerFormTitle");
-  const saveBtn = document.getElementById("saveRegisteredBtn");
-  const cancelBtn = document.getElementById("cancelEditBtn");
-
-  if (editingItemId) {
-    if (titleEl) titleEl.innerText = "登録済みの持ち物を編集";
-    if (saveBtn) saveBtn.innerHTML = `<i class="bi bi-arrow-repeat"></i> 更新する`;
-    if (cancelBtn) cancelBtn.style.display = "inline-block";
-  } else {
-    if (titleEl) titleEl.innerText = "新しい持ち物を登録";
-    if (saveBtn) saveBtn.innerHTML = `<i class="bi bi-check-circle-fill"></i> 登録する`;
-    if (cancelBtn) cancelBtn.style.display = "none";
-  }
-}
-
-window.triggerRegisterCamera = function () {
-  document.getElementById("registerCameraInput")?.click();
-};
-
-window.triggerRegisterGallery = function () {
-  document.getElementById("registerGalleryInput")?.click();
-};
-
-function compressImageFileToDataUrl(file, maxSide = 640, quality = 0.78) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-        const w = Math.max(1, Math.round(img.width * scale));
-        const h = Math.max(1, Math.round(img.height * scale));
-        const c = document.createElement("canvas");
-        c.width = w;
-        c.height = h;
-        c.getContext("2d").drawImage(img, 0, 0, w, h);
-        resolve(c.toDataURL("image/jpeg", quality));
-      };
-      img.onerror = reject;
-      img.src = reader.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-window.handleRegisterFiles = async function (fileList) {
-  if (!fileList || fileList.length === 0) return;
-  const remaining = Math.max(0, 6 - draftSamples.length);
-  if (remaining === 0) {
-    alert("見本写真は最大6枚まで追加できます。不要な写真を削除してから追加してください。");
-    return;
-  }
-  const files = Array.from(fileList).slice(0, remaining);
-  for (const f of files) {
-    try {
-      const dataUrl = await compressImageFileToDataUrl(f);
-      draftSamples.push({ dataUrl, croppedDataUrl: null, box2d: null });
-      activeDraftIndex = draftSamples.length - 1;
-    } catch (err) {
-      console.warn("見本画像の読み込み失敗:", err);
-    }
-  }
-  exitCropModeInternal(false);
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-};
-
-function renderDraftThumbs() {
-  const row = document.getElementById("draftThumbsRow");
-  if (!row) return;
-  row.innerHTML = "";
-  draftSamples.forEach((s, idx) => {
-    const div = document.createElement("div");
-    div.className = "draft-thumb" + (idx === activeDraftIndex ? " is-selected" : "");
-    div.onclick = () => {
-      activeDraftIndex = idx;
-      exitCropModeInternal(false);
-      renderDraftThumbs();
-      syncSamplePreviewUI();
-    };
-    const img = document.createElement("img");
-    img.src = s.croppedDataUrl || s.dataUrl;
-    div.appendChild(img);
-    row.appendChild(div);
-  });
-}
-
-function exitCropModeInternal(restorePreview = true) {
-  isCropModeActive = false;
-  isCropDrawing = false;
-  pendingCropRect = null;
-  activeCropSourceImg = null;
-
-  const cropBtn = document.getElementById("toggleCropModeBtn");
-  const actionBar = document.getElementById("cropActionBar");
-  const cropCanvas = document.getElementById("cropCanvas");
-  const previewImg = document.getElementById("cropPreviewImg");
-
-  if (cropBtn) {
-    cropBtn.classList.remove("is-active");
-    cropBtn.innerHTML = `<i class="bi bi-crop"></i> 切り抜く`;
-  }
-  if (actionBar) {
-    actionBar.style.display = "none";
-  }
-  if (cropCanvas) {
-    cropCanvas.classList.remove("is-cropping");
-    cropCanvas.style.display = "none";
-  }
-  if (previewImg && restorePreview) {
-    previewImg.style.display = "block";
-  }
-}
-
-function paintCropCanvasRect(x0, y0, x1, y1) {
-  const cropCanvas = document.getElementById("cropCanvas");
-  if (!cropCanvas || !activeCropSourceImg) return;
-  const ctxCrop = cropCanvas.getContext("2d");
-
-  ctxCrop.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
-  ctxCrop.drawImage(activeCropSourceImg, 0, 0, cropCanvas.width, cropCanvas.height);
-
-  const rx = Math.min(x0, x1);
-  const ry = Math.min(y0, y1);
-  const rw = Math.abs(x1 - x0);
-  const rh = Math.abs(y1 - y0);
-
-  if (rw >= 2 && rh >= 2) {
-    ctxCrop.save();
-    ctxCrop.fillStyle = "rgba(0, 230, 118, 0.25)";
-    ctxCrop.fillRect(rx, ry, rw, rh);
-    ctxCrop.strokeStyle = "#00e676";
-    ctxCrop.lineWidth = 4;
-    ctxCrop.strokeRect(rx, ry, rw, rh);
-    ctxCrop.restore();
-  }
-}
-
-function syncSamplePreviewUI() {
-  const card = document.getElementById("samplePreviewCard");
-  const counterLabel = document.getElementById("sampleCounterLabel");
-  const previewImg = document.getElementById("cropPreviewImg");
-  if (!card || !previewImg) return;
-
-  if (activeDraftIndex < 0 || !draftSamples[activeDraftIndex]) {
-    card.style.display = "none";
-    previewImg.src = "";
-    exitCropModeInternal(false);
-    return;
-  }
-
-  const sample = draftSamples[activeDraftIndex];
-  card.style.display = "block";
-  if (counterLabel) {
-    const croppedBadge = sample.croppedDataUrl ? "（切り抜き済み）" : "";
-    counterLabel.innerText = `見本 ${activeDraftIndex + 1} / ${draftSamples.length}${croppedBadge}`;
-  }
-
-  previewImg.src = sample.croppedDataUrl || sample.dataUrl;
-  if (!isCropModeActive) {
-    previewImg.style.display = "block";
-  }
-}
-
-window.toggleCropMode = function () {
-  if (activeDraftIndex < 0 || !draftSamples[activeDraftIndex]) {
-    alert("先に見本写真を追加してください！");
-    return;
-  }
-
-  if (isCropModeActive) {
-    exitCropModeInternal(true);
-    return;
-  }
-
-  const sample = draftSamples[activeDraftIndex];
-  const previewImg = document.getElementById("cropPreviewImg");
-  const cropCanvas = document.getElementById("cropCanvas");
-  const cropBtn = document.getElementById("toggleCropModeBtn");
-  const actionBar = document.getElementById("cropActionBar");
-  if (!cropCanvas) return;
-
-  const img = new Image();
-  img.onload = function () {
-    const stage = document.getElementById("cropStage");
-    const baseW = (stage && stage.clientWidth) || (previewImg && previewImg.clientWidth) || 320;
-    const w = Math.max(200, baseW);
-    const h = Math.max(120, Math.round((img.height / Math.max(1, img.width)) * w));
-
-    cropCanvas.width = w;
-    cropCanvas.height = h;
-    cropCanvas.style.display = "block";
-    cropCanvas.classList.add("is-cropping");
-    if (previewImg) previewImg.style.display = "none";
-
-    activeCropSourceImg = img;
-    isCropModeActive = true;
-    pendingCropRect = null;
-
-    if (cropBtn) {
-      cropBtn.classList.add("is-active");
-      cropBtn.innerHTML = `<i class="bi bi-crop"></i> 切り抜き中`;
-    }
-    if (actionBar) {
-      actionBar.style.display = "block";
-    }
-
-    const ctxCrop = cropCanvas.getContext("2d");
-    ctxCrop.clearRect(0, 0, w, h);
-    ctxCrop.drawImage(img, 0, 0, w, h);
-  };
-  img.src = sample.dataUrl;
-};
-
-window.cancelCropMode = function () {
-  exitCropModeInternal(true);
-};
-
-// 切り抜いた長方形のアスペクト比（縦横比）をそのまま維持して保存する（黒帯なし）
-function createCroppedDataUrlFromCanvasRect(sourceImg, canvasEl, x1, y1, x2, y2, maxOutSide = 320) {
-  const rx = Math.max(0, Math.min(canvasEl.width, Math.min(x1, x2)));
-  const ry = Math.max(0, Math.min(canvasEl.height, Math.min(y1, y2)));
-  const rw = Math.max(0, Math.min(canvasEl.width - rx, Math.abs(x2 - x1)));
-  const rh = Math.max(0, Math.min(canvasEl.height - ry, Math.abs(y2 - y1)));
-  if (rw < 8 || rh < 8 || !sourceImg) return null;
-
-  const natW = sourceImg.naturalWidth || sourceImg.width || canvasEl.width;
-  const natH = sourceImg.naturalHeight || sourceImg.height || canvasEl.height;
-  const scaleX = natW / Math.max(1, canvasEl.width);
-  const scaleY = natH / Math.max(1, canvasEl.height);
-
-  const sx = Math.max(0, Math.min(natW, rx * scaleX));
-  const sy = Math.max(0, Math.min(natH, ry * scaleY));
-  const sw = Math.max(1, Math.min(natW - sx, rw * scaleX));
-  const sh = Math.max(1, Math.min(natH - sy, rh * scaleY));
-
-  const scale = Math.min(1, maxOutSide / Math.max(sw, sh));
-  const outW = Math.max(1, Math.round(sw * scale));
-  const outH = Math.max(1, Math.round(sh * scale));
-
-  const cropOutCanvas = document.createElement("canvas");
-  cropOutCanvas.width = outW;
-  cropOutCanvas.height = outH;
-  const outCtx = cropOutCanvas.getContext("2d");
-  outCtx.clearRect(0, 0, outW, outH);
-  outCtx.drawImage(sourceImg, sx, sy, sw, sh, 0, 0, outW, outH);
-  return cropOutCanvas.toDataURL("image/jpeg", 0.85);
-}
-
-window.applyCropSelection = function () {
-  const cropCanvas = document.getElementById("cropCanvas");
-  if (!isCropModeActive || activeDraftIndex < 0 || !activeCropSourceImg || !cropCanvas) {
-    alert("切り抜く範囲を指でなぞって指定してください！");
-    return;
-  }
-  if (!pendingCropRect) {
-    alert("指でなぞって切り抜く範囲を囲んでください！");
-    return;
-  }
-
-  const { x1, y1, x2, y2 } = pendingCropRect;
-  const croppedDataUrl = createCroppedDataUrlFromCanvasRect(
-    activeCropSourceImg,
-    cropCanvas,
-    x1,
-    y1,
-    x2,
-    y2
-  );
-  if (!croppedDataUrl) {
-    alert("切り抜き範囲が小さすぎます。もう少し広く囲んでください。");
-    return;
-  }
-
-  const rx = Math.max(0, Math.min(cropCanvas.width, Math.min(x1, x2)));
-  const ry = Math.max(0, Math.min(cropCanvas.height, Math.min(y1, y2)));
-  const rw = Math.max(0, Math.min(cropCanvas.width - rx, Math.abs(x2 - x1)));
-  const rh = Math.max(0, Math.min(cropCanvas.height - ry, Math.abs(y2 - y1)));
-
-  draftSamples[activeDraftIndex].croppedDataUrl = croppedDataUrl;
-  draftSamples[activeDraftIndex].box2d = [
-    Math.max(0, Math.min(1000, Math.round((ry / Math.max(1, cropCanvas.height)) * 1000))),
-    Math.max(0, Math.min(1000, Math.round((rx / Math.max(1, cropCanvas.width)) * 1000))),
-    Math.max(0, Math.min(1000, Math.round(((ry + rh) / Math.max(1, cropCanvas.height)) * 1000))),
-    Math.max(0, Math.min(1000, Math.round(((rx + rw) / Math.max(1, cropCanvas.width)) * 1000))),
-  ];
-
-  exitCropModeInternal(true);
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-};
-
-window.deleteCurrentDraftSample = function () {
-  if (activeDraftIndex < 0 || !draftSamples[activeDraftIndex]) return;
-  draftSamples.splice(activeDraftIndex, 1);
-  if (draftSamples.length === 0) {
-    activeDraftIndex = -1;
-  } else if (activeDraftIndex >= draftSamples.length) {
-    activeDraftIndex = draftSamples.length - 1;
-  }
-  exitCropModeInternal(false);
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-};
-
-function initCropCanvasEvents() {
-  const cropCanvas = document.getElementById("cropCanvas");
-  if (!cropCanvas) return;
-
-  function getCursorPos(e) {
-    const rect = cropCanvas.getBoundingClientRect();
-    const touch =
-      (e.touches && e.touches.length > 0 && e.touches[0]) ||
-      (e.changedTouches && e.changedTouches.length > 0 && e.changedTouches[0]);
-    const clientX = touch ? touch.clientX : e.clientX;
-    const clientY = touch ? touch.clientY : e.clientY;
-    const scaleX = cropCanvas.width / Math.max(1, rect.width);
-    const scaleY = cropCanvas.height / Math.max(1, rect.height);
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
-    };
-  }
-
-  function handleStart(e) {
-    if (!isCropModeActive || activeDraftIndex < 0 || !activeCropSourceImg) return;
-    if (e.cancelable) e.preventDefault();
-    isCropDrawing = true;
-    const pos = getCursorPos(e);
-    cropStartX = pos.x;
-    cropStartY = pos.y;
-    cropEndX = pos.x;
-    cropEndY = pos.y;
-  }
-
-  function handleMove(e) {
-    if (!isCropDrawing || !isCropModeActive || activeDraftIndex < 0 || !activeCropSourceImg) return;
-    if (e.cancelable) e.preventDefault();
-    const pos = getCursorPos(e);
-    cropEndX = pos.x;
-    cropEndY = pos.y;
-    paintCropCanvasRect(cropStartX, cropStartY, cropEndX, cropEndY);
-  }
-
-  function handleEnd() {
-    if (!isCropDrawing) return;
-    isCropDrawing = false;
-    if (!isCropModeActive || activeDraftIndex < 0 || !activeCropSourceImg) return;
-
-    const x1 = Math.max(0, Math.min(cropCanvas.width, Math.min(cropStartX, cropEndX)));
-    const y1 = Math.max(0, Math.min(cropCanvas.height, Math.min(cropStartY, cropEndY)));
-    const x2 = Math.max(0, Math.min(cropCanvas.width, Math.max(cropStartX, cropEndX)));
-    const y2 = Math.max(0, Math.min(cropCanvas.height, Math.max(cropStartY, cropEndY)));
-
-    if (x2 - x1 >= 8 && y2 - y1 >= 8) {
-      pendingCropRect = { x1, y1, x2, y2 };
-      paintCropCanvasRect(x1, y1, x2, y2);
-    } else {
-      pendingCropRect = null;
-      paintCropCanvasRect(0, 0, 0, 0);
-    }
-  }
-
-  cropCanvas.onmousedown = handleStart;
-  cropCanvas.ontouchstart = handleStart;
-  cropCanvas.onmousemove = handleMove;
-  cropCanvas.ontouchmove = handleMove;
-  cropCanvas.onmouseup = handleEnd;
-  cropCanvas.ontouchend = handleEnd;
-}
-
-window.startEditingRegisteredItem = function (id) {
-  const target = registeredItems.find((it) => it.id === id);
-  if (!target) return;
-
-  editingItemId = target.id;
-  const nameInput = document.getElementById("registerNameInput");
-  if (nameInput) {
-    nameInput.value = target.name;
-    nameInput.focus();
-  }
-
-  draftSamples = (target.samples || []).map((s) => ({
-    dataUrl: s.dataUrl,
-    croppedDataUrl: s.croppedDataUrl || null,
-    box2d: Array.isArray(s.box2d) ? [...s.box2d] : null,
-  }));
-  activeDraftIndex = draftSamples.length > 0 ? 0 : -1;
-
-  exitCropModeInternal(false);
-  updateRegisterFormModeUI();
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-  document.getElementById("registerNameInput")?.scrollIntoView({ behavior: "smooth" });
-};
-
-window.cancelEditingRegisteredItem = function () {
-  editingItemId = null;
-  draftSamples = [];
-  activeDraftIndex = -1;
-  const nameInput = document.getElementById("registerNameInput");
-  if (nameInput) nameInput.value = "";
-  exitCropModeInternal(false);
-  updateRegisterFormModeUI();
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-};
-
-// 登録・更新時に元画像(dataUrl)と切り抜き枠(box2d)をサーバーへ送信し学習させる
-async function syncRegisteredItemsToTrain(targetName = "") {
-  const serverIpInput = document.getElementById("serverIp");
-  const rawServerInput =
-    (serverIpInput && serverIpInput.value.trim()) ||
-    localStorage.getItem(SERVER_URL_STORAGE_KEY) ||
-    "";
-  const baseUrl = buildBaseUrl(rawServerInput);
-  if (!baseUrl) return;
-
-  const regStatusEl = document.getElementById("registerStatus");
-  if (regStatusEl) {
-    regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習中...）`;
-  }
-  setStatus(`🧠 「${targetName || "登録物"}」をサーバーで学習中...`, "#b57c18");
-
-  try {
-    const res = await fetch(`${baseUrl}/train`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-      },
-      body: JSON.stringify({
-        items: registeredItems.map((item) => ({
-          id: item.id,
-          name: item.name,
-          samples: (item.samples || []).map((s) => ({
-            dataUrl: s.dataUrl,
-            box2d: Array.isArray(s.box2d) ? s.box2d : null,
-          })),
-        })),
-      }),
-    });
-
-    if (!res.ok) throw new Error(`学習エラー (${res.status})`);
-    const data = await res.json();
-    isTrainedWeightsReady = Boolean(data.trained);
-    if (regStatusEl) {
-      regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習完了）`;
-    }
-    setStatus(`✅ 「${targetName || "登録物"}」の学習が完了しました！`, "#247a5d");
-  } catch (err) {
-    console.warn("サーバー学習送信エラー:", err);
-    if (regStatusEl) {
-      regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習未反映）`;
-    }
-    setStatus("⚠️ 端末保存は完了しましたが、サーバー学習に失敗しました", "#c94a63");
-  }
-}
-
-window.saveRegisteredObject = function () {
-  const nameInput = document.getElementById("registerNameInput");
-  const name = nameInput ? nameInput.value.trim() : "";
-  if (!name) {
-    alert("物体の名前を入力してください！");
-    return;
-  }
-  if (draftSamples.length === 0) {
-    alert("見本写真を1枚以上追加してください！");
-    return;
-  }
-
-  const normalizedSamples = draftSamples.map((s) => ({
-    dataUrl: s.dataUrl,
-    croppedDataUrl: s.croppedDataUrl || null,
-    box2d: s.box2d,
-  }));
-
-  if (editingItemId) {
-    const idx = registeredItems.findIndex((it) => it.id === editingItemId);
-    if (idx !== -1) {
-      registeredItems[idx] = {
-        ...registeredItems[idx],
-        name: name,
-        samples: normalizedSamples,
-      };
-      if (selectedVisualItem && selectedVisualItem.id === editingItemId) {
-        selectedVisualItem = registeredItems[idx];
-        visualSampleCursor = 0;
-        updateActiveVisualBanner();
-      }
-    }
-    persistRegisteredItems();
-    editingItemId = null;
-    alert(`「${name}」を更新しました！`);
-  } else {
-    registeredItems.unshift({
-      id: `item_${Date.now()}`,
-      name: name,
-      samples: normalizedSamples,
-    });
-    persistRegisteredItems();
-    alert(`「${name}」を登録しました！`);
-  }
-
-  draftSamples = [];
-  activeDraftIndex = -1;
-  if (nameInput) nameInput.value = "";
-  exitCropModeInternal(false);
-  updateRegisterFormModeUI();
-  renderDraftThumbs();
-  syncSamplePreviewUI();
-  renderRegisteredList();
-  syncRegisteredItemsToTrain(name);
-};
-
-function renderRegisteredList() {
-  const listEl = document.getElementById("registeredList");
-  const statusLabel = document.getElementById("registerStatus");
-  if (!listEl) return;
-
-  if (statusLabel) {
-    statusLabel.innerText =
-      registeredItems.length > 0
-        ? `登録済み: ${registeredItems.length}件`
-        : "登録済みアイテムはありません";
-  }
-
-  listEl.innerHTML = "";
-  registeredItems.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "registered-item-card";
-
-    const firstSample = item.samples[0] || {};
-    const thumb = document.createElement("img");
-    thumb.className = "registered-item-thumb";
-    thumb.src = firstSample.croppedDataUrl || firstSample.dataUrl || "";
-
-    const info = document.createElement("div");
-    info.className = "registered-item-info";
-
-    const title = document.createElement("div");
-    title.className = "registered-item-name";
-    title.innerText = item.name;
-
-    const meta = document.createElement("div");
-    meta.className = "registered-item-meta";
-    const croppedCount = item.samples.filter((s) => Boolean(s.croppedDataUrl)).length;
-    meta.innerText = `写真 ${item.samples.length}枚（切り抜き ${croppedCount}枚・学習対応）`;
-
-    info.appendChild(title);
-    info.appendChild(meta);
-
-    const actions = document.createElement("div");
-    actions.className = "registered-item-actions";
-
-    const useBtn = document.createElement("button");
-    useBtn.type = "button";
-    useBtn.className = "btn-use-item";
-    useBtn.innerText = "探す";
-    useBtn.onclick = () => selectRegisteredItemForSearch(item.id);
-
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.className = "btn-edit-item";
-    editBtn.innerText = "編集";
-    editBtn.onclick = () => startEditingRegisteredItem(item.id);
-
-    const delBtn = document.createElement("button");
-    delBtn.type = "button";
-    delBtn.className = "btn-del-item";
-    delBtn.innerText = "✕";
-    delBtn.onclick = () => deleteRegisteredItem(item.id);
-
-    actions.appendChild(useBtn);
-    actions.appendChild(editBtn);
-    actions.appendChild(delBtn);
-
-    card.appendChild(thumb);
-    card.appendChild(info);
-    card.appendChild(actions);
-    listEl.appendChild(card);
-  });
-}
-
-function deleteRegisteredItem(id) {
-  registeredItems = registeredItems.filter((it) => it.id !== id);
-  if (selectedVisualItem && selectedVisualItem.id === id) {
-    clearSelectedVisualItem();
-  }
-  if (editingItemId === id) {
-    cancelEditingRegisteredItem();
-  }
-  persistRegisteredItems();
-  renderRegisteredList();
-}
-
-function updateActiveVisualBanner() {
-  const banner = document.getElementById("activeVisualBanner");
-  const label = document.getElementById("activeVisualLabel");
-  if (!banner || !label) return;
-  if (selectedVisualItem) {
-    banner.style.display = "flex";
-    label.innerText = `🎯 登録物で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚)`;
-  } else {
-    banner.style.display = "none";
-    label.innerText = "";
-  }
-}
-
-window.clearSelectedVisualItem = function () {
-  selectedVisualItem = null;
-  visualSampleCursor = 0;
-  updateActiveVisualBanner();
-};
-
-function selectRegisteredItemForSearch(id) {
-  const found = registeredItems.find((it) => it.id === id);
-  if (!found) return;
-  selectedVisualItem = found;
-  visualSampleCursor = 0;
-  currentFinalizedKeyword = found.name;
-  const inputElement = document.getElementById("targetObject");
-  if (inputElement) inputElement.value = found.name;
-  updateActiveVisualBanner();
-  goToTab("search");
-  setStatus(`🎯 「${found.name}」を選択しました`, "#247a5d");
-}
 
 function buildBaseUrl(rawInput) {
   let cleaned = (rawInput || "").trim().replace(/\/+$/, "");
@@ -956,11 +274,6 @@ function initSavedSettings() {
     console.warn("設定の初期化に失敗:", err);
   }
 
-  loadRegisteredItems();
-  updateRegisterFormModeUI();
-  renderRegisteredList();
-  updateActiveVisualBanner();
-  initCropCanvasEvents();
   updateNotificationUi();
   hideFoundBannerAndBadge();
   updateUnreadPhotosBadge();
@@ -1186,24 +499,6 @@ window.updateTarget = async function () {
     return;
   }
 
-  if (selectedVisualItem && keyword === selectedVisualItem.name) {
-    currentFinalizedKeyword = selectedVisualItem.name;
-    visualSampleCursor = 0;
-    updateActiveVisualBanner();
-    if (isSearching) {
-      setStatus(`🎯 「${currentFinalizedKeyword}」を探索中...`, "#247a5d");
-    } else {
-      setStatus(`🎯 「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
-    }
-    return;
-  }
-
-  if (selectedVisualItem && keyword !== selectedVisualItem.name) {
-    selectedVisualItem = null;
-    visualSampleCursor = 0;
-    updateActiveVisualBanner();
-  }
-
   if (!rawServerInput) {
     alert("サーバーのURLまたはIPアドレスを入力してください！");
     goToTab("setting");
@@ -1235,7 +530,7 @@ window.updateTarget = async function () {
     currentFinalizedKeyword = translatedWord;
 
     if (isSearching) {
-      setStatus(`🔍 「${currentFinalizedKeyword}」を探索中... (変更適用)`, "#247a5d");
+      setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中... (変更適用)`, "#247a5d");
     } else {
       setStatus(`🎯 「${keyword}」➔ 英語: [${currentFinalizedKeyword}] に設定しました`, "#247a5d");
     }
@@ -1262,8 +557,8 @@ window.startDetection = async function () {
       goToTab("setting");
       return;
     }
-    if (!inputVal && !currentFinalizedKeyword && !selectedVisualItem) {
-      alert("探すものを入力するか、登録した持ち物を選んでください！");
+    if (!inputVal && !currentFinalizedKeyword) {
+      alert("探すものを入力してください！");
       if (inputElement) inputElement.focus();
       return;
     }
@@ -1273,20 +568,10 @@ window.startDetection = async function () {
       return;
     }
 
-    if (selectedVisualItem) {
-      if (!inputVal || inputVal === selectedVisualItem.name) {
-        currentFinalizedKeyword = selectedVisualItem.name;
-        if (inputElement) inputElement.value = selectedVisualItem.name;
-      } else {
-        selectedVisualItem = null;
-        updateActiveVisualBanner();
-        await window.updateTarget();
-      }
-    } else if (inputVal) {
+    if (inputVal) {
       await window.updateTarget();
     }
 
-    visualSampleCursor = 0;
     resetFoundNotifyState();
 
     conn.send({
@@ -1300,7 +585,7 @@ window.startDetection = async function () {
       startButton.innerText = "探索終了";
       startButton.classList.add("active-stop");
     }
-    setStatus(`🔍 「${currentFinalizedKeyword}」を探索中...`, "#247a5d");
+    setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#247a5d");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -1309,7 +594,6 @@ window.startDetection = async function () {
   } else {
     isSearching = false;
     clearInterval(searchTimer);
-    visualSampleCursor = 0;
     resetFoundNotifyState();
     endTargetLoadingState();
 
@@ -1334,9 +618,9 @@ window.stopDetection = () => isSearching && window.startDetection();
 
 // ================= サーバーへ画像送信 ＆ 検出 =================
 async function sendFrameToPC(serverInput, keyword) {
-  if (isUpdatingTarget || (!keyword && !selectedVisualItem)) return;
+  if (isUpdatingTarget || !keyword) return;
   isRequestInFlight = true;
-  const requestedKeyword = selectedVisualItem ? selectedVisualItem.name : keyword;
+  const requestedKeyword = keyword;
   try {
     const baseUrl = buildBaseUrl(serverInput);
     if (!baseUrl || !video || !video.videoWidth || !video.videoHeight) {
@@ -1364,7 +648,6 @@ async function sendFrameToPC(serverInput, keyword) {
     const formData = new FormData();
     formData.append("image", blob, "frame.jpg");
     formData.append("keyword", requestedKeyword);
-    formData.append("mode", isTrainedWeightsReady ? "trained" : "text");
 
     const response = await fetch(`${baseUrl}/detect`, {
       method: "POST",
