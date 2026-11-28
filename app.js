@@ -21,6 +21,7 @@ let targetUpdateSafetyTimer = null;
 let lastSaveTime = 0;
 let currentFinalizedKeyword = "";
 let hasAutoConnected = false;
+let isTrainedWeightsReady = false;
 
 // 事前登録アイテム管理
 // { id, name, samples: [ { dataUrl, croppedDataUrl, box2d: [ymin, xmin, ymax, xmax] | null } ] }
@@ -708,6 +709,57 @@ window.cancelEditingRegisteredItem = function () {
   syncSamplePreviewUI();
 };
 
+// 登録・更新時に元画像(dataUrl)と切り抜き枠(box2d)をサーバーへ送信し学習させる
+async function syncRegisteredItemsToTrain(targetName = "") {
+  const serverIpInput = document.getElementById("serverIp");
+  const rawServerInput =
+    (serverIpInput && serverIpInput.value.trim()) ||
+    localStorage.getItem(SERVER_URL_STORAGE_KEY) ||
+    "";
+  const baseUrl = buildBaseUrl(rawServerInput);
+  if (!baseUrl) return;
+
+  const regStatusEl = document.getElementById("registerStatus");
+  if (regStatusEl) {
+    regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習中...）`;
+  }
+  setStatus(`🧠 「${targetName || "登録物"}」をサーバーで学習中...`, "#b57c18");
+
+  try {
+    const res = await fetch(`${baseUrl}/train`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify({
+        items: registeredItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          samples: (item.samples || []).map((s) => ({
+            dataUrl: s.dataUrl,
+            box2d: Array.isArray(s.box2d) ? s.box2d : null,
+          })),
+        })),
+      }),
+    });
+
+    if (!res.ok) throw new Error(`学習エラー (${res.status})`);
+    const data = await res.json();
+    isTrainedWeightsReady = Boolean(data.trained);
+    if (regStatusEl) {
+      regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習完了）`;
+    }
+    setStatus(`✅ 「${targetName || "登録物"}」の学習が完了しました！`, "#247a5d");
+  } catch (err) {
+    console.warn("サーバー学習送信エラー:", err);
+    if (regStatusEl) {
+      regStatusEl.innerText = `登録済み: ${registeredItems.length}件（学習未反映）`;
+    }
+    setStatus("⚠️ 端末保存は完了しましたが、サーバー学習に失敗しました", "#c94a63");
+  }
+}
+
 window.saveRegisteredObject = function () {
   const nameInput = document.getElementById("registerNameInput");
   const name = nameInput ? nameInput.value.trim() : "";
@@ -761,6 +813,7 @@ window.saveRegisteredObject = function () {
   renderDraftThumbs();
   syncSamplePreviewUI();
   renderRegisteredList();
+  syncRegisteredItemsToTrain(name);
 };
 
 function renderRegisteredList() {
@@ -795,7 +848,7 @@ function renderRegisteredList() {
     const meta = document.createElement("div");
     meta.className = "registered-item-meta";
     const croppedCount = item.samples.filter((s) => Boolean(s.croppedDataUrl)).length;
-    meta.innerText = `写真 ${item.samples.length}枚（切り抜き ${croppedCount}枚・一括照合）`;
+    meta.innerText = `写真 ${item.samples.length}枚（切り抜き ${croppedCount}枚・学習対応）`;
 
     info.appendChild(title);
     info.appendChild(meta);
@@ -850,7 +903,7 @@ function updateActiveVisualBanner() {
   if (!banner || !label) return;
   if (selectedVisualItem) {
     banner.style.display = "flex";
-    label.innerText = `🖼️ 見本で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚を一括照合)`;
+    label.innerText = `🎯 登録物で探索: ${selectedVisualItem.name} (${selectedVisualItem.samples.length}枚)`;
   } else {
     banner.style.display = "none";
     label.innerText = "";
@@ -873,7 +926,7 @@ function selectRegisteredItemForSearch(id) {
   if (inputElement) inputElement.value = found.name;
   updateActiveVisualBanner();
   goToTab("search");
-  setStatus(`🎯 見本「${found.name}」(${found.samples.length}枚一括)を選択しました`, "#247a5d");
+  setStatus(`🎯 「${found.name}」を選択しました`, "#247a5d");
 }
 
 function buildBaseUrl(rawInput) {
@@ -1138,9 +1191,9 @@ window.updateTarget = async function () {
     visualSampleCursor = 0;
     updateActiveVisualBanner();
     if (isSearching) {
-      setStatus(`🖼️ 見本「${currentFinalizedKeyword}」(${selectedVisualItem.samples.length}枚一括)をYOLOEで探索中...`, "#247a5d");
+      setStatus(`🎯 「${currentFinalizedKeyword}」を探索中...`, "#247a5d");
     } else {
-      setStatus(`🎯 見本「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
+      setStatus(`🎯 「${currentFinalizedKeyword}」を設定しました`, "#247a5d");
     }
     return;
   }
@@ -1247,12 +1300,7 @@ window.startDetection = async function () {
       startButton.innerText = "探索終了";
       startButton.classList.add("active-stop");
     }
-    setStatus(
-      selectedVisualItem
-        ? `🖼️ 見本「${selectedVisualItem.name}」(${selectedVisualItem.samples.length}枚一括)をYOLOEで探索中...`
-        : `🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`,
-      "#247a5d"
-    );
+    setStatus(`🔍 「${currentFinalizedKeyword}」を探索中...`, "#247a5d");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -1283,67 +1331,6 @@ window.startDetection = async function () {
 };
 
 window.stopDetection = () => isSearching && window.startDetection();
-
-async function dataUrlToBlob(dataUrl) {
-  const res = await fetch(dataUrl);
-  return await res.blob();
-}
-
-function loadImageElement(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
-// 切り抜いたbox2dの縦横比をそのまま維持（黒帯なし）してYOLO送信用の見本Blobを生成する
-async function buildAspectCroppedBlobForYolo(sample, maxOutSide = 320) {
-  const fallbackDataUrl = sample.croppedDataUrl || sample.dataUrl;
-  if (!sample || !sample.dataUrl || !Array.isArray(sample.box2d) || sample.box2d.length !== 4) {
-    return await dataUrlToBlob(fallbackDataUrl);
-  }
-
-  const [ymin, xmin, ymax, xmax] = sample.box2d.map((v) => Number(v));
-  const normX1 = Math.max(0, Math.min(1000, Math.min(xmin, xmax)));
-  const normY1 = Math.max(0, Math.min(1000, Math.min(ymin, ymax)));
-  const normX2 = Math.max(0, Math.min(1000, Math.max(xmin, xmax)));
-  const normY2 = Math.max(0, Math.min(1000, Math.max(ymin, ymax)));
-
-  if (normX2 - normX1 < 5 || normY2 - normY1 < 5) {
-    return await dataUrlToBlob(fallbackDataUrl);
-  }
-
-  const img = await loadImageElement(sample.dataUrl);
-  const natW = img.naturalWidth || img.width;
-  const natH = img.naturalHeight || img.height;
-  if (!natW || !natH) {
-    return await dataUrlToBlob(fallbackDataUrl);
-  }
-
-  const sx = Math.max(0, Math.min(natW - 1, Math.round((normX1 / 1000) * natW)));
-  const sy = Math.max(0, Math.min(natH - 1, Math.round((normY1 / 1000) * natH)));
-  const ex = Math.max(sx + 1, Math.min(natW, Math.round((normX2 / 1000) * natW)));
-  const ey = Math.max(sy + 1, Math.min(natH, Math.round((normY2 / 1000) * natH)));
-  const sw = ex - sx;
-  const sh = ey - sy;
-
-  const scale = Math.min(1, maxOutSide / Math.max(sw, sh));
-  const outW = Math.max(1, Math.round(sw * scale));
-  const outH = Math.max(1, Math.round(sh * scale));
-
-  const outCanvas = document.createElement("canvas");
-  outCanvas.width = outW;
-  outCanvas.height = outH;
-  const outCtx = outCanvas.getContext("2d");
-  outCtx.clearRect(0, 0, outW, outH);
-  outCtx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
-
-  return await new Promise((resolve) =>
-    outCanvas.toBlob((b) => resolve(b), "image/jpeg", 0.85)
-  );
-}
 
 // ================= サーバーへ画像送信 ＆ 検出 =================
 async function sendFrameToPC(serverInput, keyword) {
@@ -1377,23 +1364,7 @@ async function sendFrameToPC(serverInput, keyword) {
     const formData = new FormData();
     formData.append("image", blob, "frame.jpg");
     formData.append("keyword", requestedKeyword);
-
-    if (selectedVisualItem && Array.isArray(selectedVisualItem.samples) && selectedVisualItem.samples.length > 0) {
-      formData.append("mode", "visual");
-      const refBlobs = await Promise.all(
-        selectedVisualItem.samples.map((s) => buildAspectCroppedBlobForYolo(s))
-      );
-      refBlobs.forEach((refBlob, idx) => {
-        if (refBlob) {
-          formData.append("ref_images", refBlob, `ref_${idx}.jpg`);
-          if (idx === 0) {
-            formData.append("ref_image", refBlob, `ref_0.jpg`);
-          }
-        }
-      });
-    } else {
-      formData.append("mode", "text");
-    }
+    formData.append("mode", isTrainedWeightsReady ? "trained" : "text");
 
     const response = await fetch(`${baseUrl}/detect`, {
       method: "POST",
