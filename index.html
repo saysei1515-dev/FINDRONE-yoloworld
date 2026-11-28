@@ -9,25 +9,23 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root {
-      --bg-1: #f7f3ff;
-      --bg-2: #fdf2f8;
-      --bg-3: #ecfdf5;
-      --surface: rgba(255, 255, 255, 0.74);
-      --surface-strong: rgba(255, 255, 255, 0.94);
-      --border-glass: rgba(255, 255, 255, 0.9);
-      --border-subtle: rgba(139, 92, 246, 0.16);
-      --ink-main: #2a1b33;
-      --ink-sub: #745d7d;
-      --accent-lavender: #8b5cf6;
-      --accent-pink: #ec4899;
-      --accent-mint: #10b981;
-      --neon-mint: #34d399;
-      --danger: #e11d48;
-      --grad-main: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-      --grad-mint: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      --grad-stop: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
-      --shadow-soft: 0 14px 34px rgba(109, 40, 217, 0.08);
-      --shadow-mint-glow: 0 0 0 2px rgba(52, 211, 153, 0.55), 0 12px 30px rgba(16, 185, 129, 0.24);
+      --bg-page: #f7f4fb;
+      --card-bg: #ffffff;
+      --card-tint-pink: #fdf2f8;
+      --card-tint-mint: #eefcf5;
+      --card-tint-lavender: #f3efff;
+      --line-color: #d8cee6;
+      --line-strong: #9b87bd;
+      --text-main: #2f243a;
+      --text-sub: #6f627d;
+      --btn-lavender: #8b6fd4;
+      --btn-lavender-dark: #7355c2;
+      --btn-mint: #38b28a;
+      --btn-mint-dark: #259470;
+      --btn-rose: #e05a77;
+      --btn-rose-dark: #c4435f;
+      --badge-found: #d9f7ea;
+      --badge-found-text: #165b45;
     }
 
     * {
@@ -38,95 +36,62 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
-      background:
-        radial-gradient(circle at 10% 8%, rgba(236, 72, 153, 0.14) 0%, transparent 42%),
-        radial-gradient(circle at 90% 14%, rgba(139, 92, 246, 0.17) 0%, transparent 45%),
-        radial-gradient(circle at 50% 92%, rgba(52, 211, 153, 0.16) 0%, transparent 48%),
-        linear-gradient(155deg, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
-      color: var(--ink-main);
+      background-color: var(--bg-page);
+      color: var(--text-main);
       min-height: 100vh;
     }
 
     .app-shell {
-      max-width: 500px;
+      max-width: 480px;
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 88px;
+      padding-bottom: 78px;
+      background-color: var(--bg-page);
     }
 
     /* ヘッダー */
     .app-header {
       position: sticky;
       top: 0;
-      z-index: 25;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.74);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border-glass);
-    }
-
-    .brand-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: var(--grad-main);
-      color: #fff;
-      font-size: 16px;
-      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
+      background-color: var(--card-bg);
+      border-bottom: 2px solid var(--line-color);
     }
 
     .brand-title {
       font-size: 16px;
-      font-weight: 900;
-      letter-spacing: 0.18em;
-      background: var(--grad-main);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: 0.35em;
+      color: var(--text-main);
     }
 
-    .history-open-btn {
-      position: relative;
+    .history-top-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 13px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 999px;
-      background: var(--surface-strong);
-      color: var(--ink-main);
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line-strong);
+      background-color: var(--card-tint-lavender);
+      color: var(--text-main);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);
-      transition: transform 0.12s ease;
-    }
-
-    .history-open-btn:active {
-      transform: scale(0.97);
     }
 
     .unread-badge {
       padding: 1px 6px;
       border-radius: 999px;
-      background: var(--grad-stop);
-      color: #fff;
+      background-color: var(--btn-rose);
+      color: #ffffff;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     /* メイン */
@@ -141,242 +106,130 @@
 
     .tab-content.active {
       display: block;
-      animation: tabFadeIn 0.18s ease;
     }
 
-    @keyframes tabFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .glass-card {
-      background: var(--surface);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--border-glass);
-      border-radius: 24px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .hero-card {
+    /* ホーム画面 */
+    .home-banner {
+      background-color: var(--card-bg);
+      border: 2px solid var(--line-color);
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 12px;
       text-align: center;
-      padding: 20px 18px;
     }
 
-    .hero-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 999px;
-      background: rgba(139, 92, 246, 0.12);
-      color: #6d28d9;
-      font-size: 11px;
+    .home-logo {
+      font-size: 18px;
       font-weight: 800;
-      margin-bottom: 10px;
+      letter-spacing: 0.32em;
+      margin-bottom: 14px;
+      color: var(--text-main);
     }
 
-    .hero-title {
-      margin: 0 0 8px;
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-    }
-
-    .hero-desc {
-      margin: 0 0 16px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--ink-sub);
-    }
-
-    .home-actions-grid {
+    .home-menu-row {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .home-action-btn {
-      display: flex;
-      flex-direction: column;
+    .home-pill-btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 14px 10px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      background: var(--surface-strong);
-      color: var(--ink-main);
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--line-strong);
+      background-color: var(--card-tint-lavender);
+      color: var(--text-main);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.06);
-      transition: transform 0.12s ease, border-color 0.15s ease;
     }
 
-    .home-action-btn:active {
-      transform: scale(0.97);
+    .home-pill-btn.primary {
+      background-color: var(--btn-lavender);
+      border-color: var(--btn-lavender-dark);
+      color: #ffffff;
     }
 
-    .home-action-btn i {
-      font-size: 20px;
-      color: var(--accent-lavender);
+    .home-history-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--btn-mint-dark);
+      background-color: var(--card-tint-mint);
+      color: var(--badge-found-text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    .home-action-btn.primary-tile {
-      grid-column: span 2;
-      flex-direction: row;
-      padding: 14px;
-      background: var(--grad-main);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
-    }
-
-    .home-action-btn.primary-tile i {
-      color: #fff;
-    }
-
-    .guide-list {
+    .home-notes-box {
+      background-color: var(--card-bg);
+      border: 2px solid var(--line-color);
+      border-radius: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .guide-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 11px 12px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(139, 92, 246, 0.1);
+    .home-note-line {
       font-size: 12px;
-      line-height: 1.5;
-      color: var(--ink-sub);
+      line-height: 1.55;
+      color: var(--text-sub);
+      font-weight: 600;
     }
 
-    .guide-item i {
-      font-size: 16px;
-      color: var(--accent-mint);
-      margin-top: 1px;
-      flex-shrink: 0;
-    }
-
-    .guide-item strong {
-      display: block;
-      color: var(--ink-main);
-      font-size: 13px;
-      margin-bottom: 2px;
-    }
-
-    .card-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+    /* 探す画面 */
+    .panel-box {
+      background-color: var(--card-bg);
+      border: 2px solid var(--line-color);
+      border-radius: 16px;
+      padding: 14px;
       margin-bottom: 12px;
     }
 
-    .card-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--ink-main);
-    }
-
-    .card-title i {
-      font-size: 16px;
-      color: var(--accent-lavender);
-    }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(116, 93, 125, 0.12);
-      color: var(--ink-sub);
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .status-chip .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #94a3b8;
-    }
-
-    .status-chip.is-active {
-      background: rgba(16, 185, 129, 0.16);
-      color: #065f46;
-    }
-
-    .status-chip.is-active .dot {
-      background: var(--neon-mint);
-      box-shadow: 0 0 8px var(--neon-mint);
-    }
-
-    .search-input-row,
-    .input-with-btn {
+    .input-row {
       display: flex;
       gap: 8px;
+      align-items: center;
     }
 
     input[type="text"] {
       flex: 1;
       min-width: 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--border-subtle);
-      background: var(--surface-strong);
-      color: var(--ink-main);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line-strong);
+      background-color: #ffffff;
+      color: var(--text-main);
       font-size: 14px;
       font-weight: 600;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    input[type="text"]::placeholder {
-      color: #a38dab;
-      font-weight: 500;
     }
 
     input[type="text"]:focus {
       outline: none;
-      border-color: var(--accent-pink);
-      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.14);
+      border-color: var(--btn-lavender);
     }
 
     .btn-decide,
-    .btn-sub {
-      padding: 0 16px;
-      border: none;
-      border-radius: 14px;
-      background: var(--grad-main);
-      color: #fff;
+    .btn-inline-action {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--btn-lavender-dark);
+      background-color: var(--btn-lavender);
+      color: #ffffff;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
-      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.22);
-      transition: transform 0.12s ease;
-    }
-
-    .btn-decide:active,
-    .btn-sub:active {
-      transform: scale(0.97);
     }
 
     /* 通知バー：高さを固定してカメラ枠が上下に動かないようにする */
@@ -386,23 +239,21 @@
       justify-content: space-between;
       gap: 8px;
       margin-top: 10px;
-      height: 46px;
-      min-height: 46px;
-      max-height: 46px;
-      padding: 0 14px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(209, 250, 229, 0.95), rgba(167, 243, 208, 0.9));
-      border: 1px solid rgba(16, 185, 129, 0.48);
-      color: #064e3b;
+      height: 44px;
+      min-height: 44px;
+      max-height: 44px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background-color: var(--badge-found);
+      border: 1.5px solid var(--btn-mint);
+      color: var(--badge-found-text);
       font-size: 13px;
-      font-weight: 800;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.14);
+      font-weight: 700;
+      overflow: hidden;
       visibility: hidden;
       opacity: 0;
       pointer-events: none;
-      overflow: hidden;
       cursor: pointer;
-      transition: opacity 0.15s ease;
     }
 
     .found-toast.is-visible {
@@ -425,106 +276,97 @@
     }
 
     .detected-count-badge {
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
-      background: #059669;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
+      background-color: var(--btn-mint-dark);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
     }
 
     .toast-folder-hint {
       font-size: 11px;
-      font-weight: 700;
-      color: #047857;
       text-decoration: underline;
+      font-weight: 700;
     }
 
-    .control-buttons-row {
-      margin-top: 10px;
+    .action-pair-row {
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
+      grid-template-columns: 1.25fr 1fr;
       gap: 8px;
+      margin-top: 10px;
     }
 
-    .btn-primary-search {
-      padding: 13px 12px;
-      border: none;
-      border-radius: 15px;
-      background: var(--grad-main);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 900;
+    .btn-search-toggle {
+      padding: 11px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--btn-lavender-dark);
+      background-color: var(--btn-lavender);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.26);
-      transition: transform 0.12s ease;
     }
 
-    .btn-primary-search:active:not(:disabled) {
-      transform: scale(0.98);
+    .btn-search-toggle.active-stop {
+      background-color: var(--btn-rose);
+      border-color: var(--btn-rose-dark);
     }
 
-    .btn-primary-search.active-stop {
-      background: var(--grad-stop);
-      box-shadow: 0 8px 20px rgba(225, 29, 72, 0.24);
-    }
-
-    .btn-primary-search:disabled {
-      opacity: 0.48;
+    .btn-search-toggle:disabled {
+      opacity: 0.45;
       cursor: not-allowed;
-      box-shadow: none;
     }
 
     .btn-camera-toggle {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 13px 12px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 15px;
-      background: var(--surface-strong);
-      color: var(--ink-main);
+      gap: 5px;
+      padding: 11px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line-strong);
+      background-color: var(--card-tint-lavender);
+      color: var(--text-main);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
     .btn-camera-toggle.is-open {
-      border-color: rgba(16, 185, 129, 0.5);
-      background: rgba(236, 253, 245, 0.95);
-      color: #065f46;
+      background-color: var(--card-tint-mint);
+      border-color: var(--btn-mint-dark);
+      color: var(--badge-found-text);
     }
 
-    .status-text {
-      margin-top: 10px;
+    .status-line {
+      margin-top: 8px;
       font-size: 12px;
       font-weight: 700;
-      color: var(--ink-sub);
+      color: var(--text-sub);
       text-align: center;
-      line-height: 1.45;
     }
 
-    /* カメラカード */
-    .camera-card {
-      padding: 10px;
-      border-radius: 26px;
-      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    /* カメラ枠 */
+    .camera-box {
+      background-color: var(--card-bg);
+      border: 2px solid var(--line-color);
+      border-radius: 16px;
+      padding: 8px;
+      transition: border-color 0.2s ease;
     }
 
-    .camera-card.is-searching {
-      border-color: rgba(52, 211, 153, 0.75);
-      box-shadow: var(--shadow-mint-glow);
+    .camera-box.is-searching {
+      border-color: var(--btn-mint);
     }
 
     .camera-viewport {
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
-      border-radius: 18px;
+      border-radius: 12px;
       overflow: hidden;
-      background: #171021;
+      background-color: #231a2c;
     }
 
     .camera-viewport video,
@@ -548,191 +390,133 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      background: linear-gradient(145deg, rgba(38, 25, 56, 0.94), rgba(22, 16, 33, 0.96));
-      color: #f5e9ff;
-      text-align: center;
-      padding: 16px;
-    }
-
-    .camera-closed-overlay i {
-      font-size: 28px;
-      color: var(--neon-mint);
-    }
-
-    .camera-closed-overlay span {
+      gap: 6px;
+      background-color: rgba(35, 26, 44, 0.92);
+      color: #ffffff;
       font-size: 13px;
-      font-weight: 800;
-    }
-
-    .camera-closed-overlay small {
-      font-size: 11px;
-      color: #c4b5fd;
+      font-weight: 700;
     }
 
     /* 設定画面 */
-    .step-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(139, 92, 246, 0.12);
-      color: #6d28d9;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      margin-bottom: 6px;
+    .setting-field {
+      margin-bottom: 12px;
     }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-group label {
+    .setting-field label {
       display: block;
       font-size: 12px;
-      font-weight: 800;
-      color: var(--ink-main);
-      margin-bottom: 6px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 5px;
     }
 
-    .qr-section {
-      margin: 12px 0 14px;
-    }
-
-    .btn-qr {
+    .btn-qr-toggle {
       width: 100%;
-      padding: 11px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      background: var(--surface-strong);
-      color: var(--ink-main);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line-strong);
+      background-color: var(--card-tint-pink);
+      color: var(--text-main);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
+      margin-bottom: 12px;
     }
 
-    .btn-qr.active-stop {
-      background: var(--grad-stop);
-      color: #fff;
-      border-color: transparent;
+    .btn-qr-toggle.active-stop {
+      background-color: var(--btn-rose);
+      border-color: var(--btn-rose-dark);
+      color: #ffffff;
     }
 
     #qr-reader {
-      margin-top: 10px;
-      border-radius: 14px;
+      margin-bottom: 12px;
+      border-radius: 10px;
       overflow: hidden;
     }
 
-    .setting-switches {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .setting-toggle-row {
+    .toggle-option-box {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: var(--surface-strong);
-      border: 1px solid var(--border-subtle);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line-color);
+      background-color: var(--bg-page);
+      margin-bottom: 10px;
       font-size: 13px;
-      font-weight: 800;
-      color: var(--ink-main);
+      font-weight: 700;
     }
 
-    .setting-label-group {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .setting-sub {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink-sub);
-    }
-
-    .pill-toggle-btn {
-      padding: 6px 14px;
-      border: none;
+    .switch-btn {
+      padding: 5px 14px;
       border-radius: 999px;
-      background: #cbd5e1;
-      color: #475569;
+      border: 1.5px solid var(--line-strong);
+      background-color: #e6e0ef;
+      color: var(--text-sub);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .pill-toggle-btn.is-on {
-      background: var(--grad-mint);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    .switch-btn.is-on {
+      background-color: var(--btn-mint);
+      border-color: var(--btn-mint-dark);
+      color: #ffffff;
     }
 
-    .btn-save-settings {
+    .btn-save-main {
       width: 100%;
-      margin-top: 14px;
-      padding: 13px;
-      border: none;
-      border-radius: 16px;
-      background: var(--grad-main);
-      color: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--btn-lavender-dark);
+      background-color: var(--btn-lavender);
+      color: #ffffff;
       font-size: 14px;
-      font-weight: 900;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+      margin-top: 6px;
     }
 
     /* 下部ナビゲーション（3タブ） */
-    .nav-bar {
+    .bottom-nav {
       position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 24px);
-      max-width: 476px;
-      z-index: 30;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 25;
       display: flex;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.86);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--border-glass);
-      border-radius: 20px;
-      padding: 6px;
-      box-shadow: 0 10px 28px rgba(109, 40, 217, 0.12);
+      justify-content: space-around;
+      background-color: var(--card-bg);
+      border-top: 2px solid var(--line-color);
+      padding: 6px 8px;
     }
 
-    .nav-item {
+    .nav-btn {
       flex: 1;
+      max-width: 160px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 7px 4px;
-      border: none;
-      border-radius: 15px;
-      background: transparent;
-      color: var(--ink-sub);
+      padding: 6px 4px;
+      border-radius: 10px;
+      border: 1.5px solid transparent;
+      background-color: transparent;
+      color: var(--text-sub);
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
-    .nav-item i {
-      font-size: 18px;
+    .nav-btn i {
+      font-size: 17px;
     }
 
-    .nav-item.active {
-      color: #fff;
-      background: var(--grad-main);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    .nav-btn.active {
+      background-color: var(--card-tint-lavender);
+      border-color: var(--line-strong);
+      color: var(--text-main);
     }
 
     /* モーダル */
@@ -744,22 +528,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(42, 27, 51, 0.48);
-      backdrop-filter: blur(8px);
+      background-color: rgba(47, 36, 58, 0.45);
       padding: 16px;
     }
 
     .modal-card {
       width: 100%;
-      max-width: 480px;
+      max-width: 460px;
       max-height: 82vh;
       display: flex;
       flex-direction: column;
-      border-radius: 24px;
-      background: #fffafe;
-      color: var(--ink-main);
-      border: 1px solid #fff;
-      box-shadow: 0 20px 44px rgba(42, 27, 51, 0.25);
+      border-radius: 16px;
+      border: 2px solid var(--line-strong);
+      background-color: var(--card-bg);
       overflow: hidden;
     }
 
@@ -768,9 +549,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 13px 15px;
-      background: rgba(247, 243, 255, 0.95);
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 14px;
+      background-color: var(--card-tint-lavender);
+      border-bottom: 1.5px solid var(--line-color);
     }
 
     .modal-header-left,
@@ -783,33 +564,33 @@
     .modal-header h3 {
       margin: 0;
       font-size: 14px;
-      font-weight: 800;
     }
 
     .btn-back-folder,
     .btn-clear-history,
     .btn-close-modal {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
     }
 
     .btn-back-folder {
-      background: rgba(139, 92, 246, 0.14);
-      color: var(--ink-main);
+      background-color: #ffffff;
+      color: var(--text-main);
     }
 
     .btn-clear-history {
-      background: rgba(225, 29, 72, 0.12);
-      color: var(--danger);
+      background-color: var(--card-tint-pink);
+      border-color: var(--btn-rose);
+      color: var(--btn-rose-dark);
     }
 
     .btn-close-modal {
-      background: rgba(116, 93, 125, 0.14);
-      color: var(--ink-main);
+      background-color: #ffffff;
+      color: var(--text-main);
     }
 
     .modal-body {
@@ -826,9 +607,9 @@
     .folder-card {
       position: relative;
       padding: 10px;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      border: 1.5px solid var(--line-color);
+      background-color: var(--bg-page);
       text-align: center;
       cursor: pointer;
     }
@@ -837,20 +618,19 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 12px;
-      background: #f7f3ff;
+      border-radius: 8px;
+      background-color: #ffffff;
     }
 
     .folder-name {
-      margin-top: 7px;
+      margin-top: 6px;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .folder-count {
       font-size: 11px;
-      color: var(--ink-sub);
-      font-weight: 700;
+      color: var(--text-sub);
     }
 
     .photo-grid {
@@ -875,7 +655,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
     }
 
@@ -883,71 +663,67 @@
       position: absolute;
       top: -6px;
       right: -6px;
-      width: 21px;
-      height: 21px;
-      border: none;
+      width: 20px;
+      height: 20px;
       border-radius: 999px;
-      background: var(--danger);
-      color: #fff;
+      border: none;
+      background-color: var(--btn-rose);
+      color: #ffffff;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
     }
 
     .photo-time-label {
       margin-top: 4px;
       font-size: 10px;
-      color: var(--ink-sub);
+      color: var(--text-sub);
       text-align: center;
     }
 
     .empty-history-msg {
       text-align: center;
-      color: var(--ink-sub);
-      padding: 28px 8px;
+      color: var(--text-sub);
+      padding: 24px 8px;
       font-size: 13px;
-      font-weight: 700;
     }
 
     .preview-backdrop {
       flex-direction: column;
       z-index: 200;
-      background: rgba(24, 14, 30, 0.82);
+      background-color: rgba(35, 26, 44, 0.78);
     }
 
     .preview-image {
       max-width: 92vw;
       max-height: 75vh;
-      border-radius: 16px;
-      border: 2px solid #fff;
-      background: #fff;
+      border-radius: 12px;
+      border: 2px solid #ffffff;
+      background-color: #ffffff;
     }
 
     .preview-time-badge {
       margin-top: 10px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.94);
-      color: var(--ink-main);
+      background-color: #ffffff;
+      color: var(--text-main);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .preview-hint {
       margin-top: 10px;
       font-size: 12px;
-      color: #f5d0fe;
+      color: #ffffff;
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <header class="app-header">
-      <div class="brand-area">
-        <span class="brand-badge"><i class="bi bi-bounding-box-circles"></i></span>
-        <span class="brand-title">FINDRONE</span>
-      </div>
-      <button type="button" class="history-open-btn" onclick="openHistoryFolder()">
+      <span class="brand-title">F I N D R O N E</span>
+      <button type="button" class="history-top-btn" onclick="openHistoryFolder()">
         <i class="bi bi-folder2-open"></i> 発見履歴
         <span id="unreadPhotosBadge" class="unread-badge" style="display: none;">0</span>
       </button>
@@ -956,84 +732,40 @@
     <main class="app-main">
       <!-- ================= ホーム画面 ================= -->
       <div id="homeTab" class="tab-content active">
-        <div class="glass-card hero-card">
-          <div class="hero-tag">
-            <i class="bi bi-sparkles"></i> YOLOE テキスト物体検知
-          </div>
-          <h1 class="hero-title">探したい言葉を伝えるだけ</h1>
-          <p class="hero-desc">
-            探したい物体の名前や特徴を入力して、カメラからリアルタイムに物体を探します。
-          </p>
-          <div class="home-actions-grid">
-            <button type="button" class="home-action-btn primary-tile" onclick="goToTab('search')">
-              <i class="bi bi-search"></i>
-              <span>探す画面を開く</span>
+        <div class="home-banner">
+          <div class="home-logo">F I N D R O N E</div>
+          <div class="home-menu-row">
+            <button type="button" class="home-pill-btn primary" onclick="goToTab('search')">
+              <i class="bi bi-search"></i> 探す
             </button>
-            <button type="button" class="home-action-btn" onclick="goToTab('setting')">
-              <i class="bi bi-sliders"></i>
-              <span>サーバ・カメラ設定</span>
-            </button>
-            <button type="button" class="home-action-btn" onclick="openHistoryFolder()">
-              <i class="bi bi-images"></i>
-              <span>発見した物体一覧</span>
+            <button type="button" class="home-pill-btn" onclick="goToTab('setting')">
+              <i class="bi bi-gear"></i> 設定
             </button>
           </div>
+          <button type="button" class="home-history-btn" onclick="openHistoryFolder()">
+            <i class="bi bi-folder2-open"></i> 発見履歴
+          </button>
         </div>
 
-        <div class="glass-card">
-          <div class="card-header-row">
-            <div class="card-title">
-              <i class="bi bi-info-circle"></i> 使い方のポイント
-            </div>
-          </div>
-          <div class="guide-list">
-            <div class="guide-item">
-              <i class="bi bi-gear-wide-connected"></i>
-              <div>
-                <strong>サーバID・カメラIDの設定</strong>
-                設定タブでAIサーバとカメラ接続IDを設定し、QRコード読み取りや通知・カメラ表示の好みを保存します[cite: 1]。
-              </div>
-            </div>
-            <div class="guide-item">
-              <i class="bi bi-camera-video"></i>
-              <div>
-                <strong>カメラ映像の表示・非表示切替</strong>
-                探す画面の「カメラを起動／閉じる」や、設定タブの「カメラ常時表示」で映像の表示を切り替えられます[cite: 1]。
-              </div>
-            </div>
-            <div class="guide-item">
-              <i class="bi bi-bell-check"></i>
-              <div>
-                <strong>発見通知と履歴フォルダ</strong>
-                物体を見つけると通知バーに表示され、タップすると発見した物体の履歴フォルダを開けます。
-              </div>
-            </div>
-          </div>
+        <div class="home-notes-box">
+          <div class="home-note-line">※ 探したい物体の名前や特徴から物体検知を行います</div>
+          <div class="home-note-line">※ サーバID ・ カメラID の設定を行います</div>
+          <div class="home-note-line">※ 発見した物体一覧が表示されます</div>
         </div>
       </div>
 
       <!-- ================= 探す画面 ================= -->
       <div id="searchTab" class="tab-content">
-        <div class="glass-card">
-          <div class="card-header-row">
-            <div class="card-title">
-              <i class="bi bi-crosshair"></i> 探す物体を指定
-            </div>
-            <div id="searchStatusChip" class="status-chip">
-              <span class="dot"></span>
-              <span id="searchStatusText">STANDBY</span>
-            </div>
-          </div>
-
-          <div class="search-input-row">
+        <div class="panel-box">
+          <div class="input-row">
             <input
               type="text"
               id="targetObject"
-              placeholder="探す物体を入力（例: 鍵、コップ、リモコン）"
+              placeholder="探す物体を入力"
               autocomplete="off"
             />
             <button type="button" class="btn-decide" onclick="updateTarget()">
-              <i class="bi bi-check2"></i> 決定
+              決定
             </button>
           </div>
 
@@ -1046,15 +778,15 @@
             <span id="foundToastText"></span>
             <span class="found-toast-meta">
               <span id="detectedCountBadge" class="detected-count-badge" style="display: none;">×0</span>
-              <span class="toast-folder-hint">履歴を見る</span>
+              <span class="toast-folder-hint">履歴</span>
             </span>
           </div>
 
-          <div class="control-buttons-row">
+          <div class="action-pair-row">
             <button
               type="button"
               id="startButton"
-              class="btn-primary-search"
+              class="btn-search-toggle"
               onclick="startDetection()"
               disabled
             >
@@ -1080,17 +812,16 @@
             探索終了
           </button>
 
-          <div id="status" class="status-text">ステータス: 初期化中...</div>
+          <div id="status" class="status-line">ステータス: 未接続</div>
         </div>
 
-        <div id="cameraCard" class="glass-card camera-card">
+        <div id="cameraCard" class="camera-box">
           <div class="camera-viewport">
             <video id="video" autoplay muted playsinline></video>
             <canvas id="outputCanvas"></canvas>
             <div id="cameraClosedOverlay" class="camera-closed-overlay" style="display: none;">
               <i class="bi bi-camera-video-off"></i>
               <span>カメラ映像を閉じています</span>
-              <small>「カメラを起動」または設定の「カメラ常時表示」から開けます</small>
             </div>
           </div>
         </div>
@@ -1098,101 +829,83 @@
 
       <!-- ================= 設定画面 ================= -->
       <div id="settingTab" class="tab-content">
-        <div class="glass-card">
-          <div class="card-header-row">
-            <div class="card-title">
-              <i class="bi bi-sliders"></i> サーバ・カメラ・通知設定
-            </div>
-          </div>
-
-          <div class="form-group">
-            <span class="step-badge">SERVER</span>
-            <label for="serverIp"><i class="bi bi-hdd-network"></i> サーバID / URL</label>
-            <div class="input-with-btn">
+        <div class="panel-box">
+          <div class="setting-field">
+            <label for="serverIp"><i class="bi bi-hdd-network"></i> サーバIDを入力</label>
+            <div class="input-row">
               <input
                 type="text"
                 id="serverIp"
                 placeholder="サーバIDを入力（例: https://xxxx.ngrok-free.app）"
               />
-              <button type="button" class="btn-sub" onclick="connectToServerOnly()">
+              <button type="button" class="btn-inline-action" onclick="connectToServerOnly()">
                 接続
               </button>
             </div>
           </div>
 
-          <div class="form-group">
-            <span class="step-badge">CAMERA</span>
-            <label for="pcIdInput"><i class="bi bi-webcam"></i> カメラID（PC接続ID）</label>
-            <div class="input-with-btn">
+          <div class="setting-field">
+            <label for="pcIdInput"><i class="bi bi-webcam"></i> カメラIDを入力</label>
+            <div class="input-row">
               <input
                 type="text"
                 id="pcIdInput"
-                placeholder="カメラIDを入力またはQR読取"
+                placeholder="カメラIDを入力"
               />
-              <button type="button" class="btn-sub" onclick="connectToPC()">
+              <button type="button" class="btn-inline-action" onclick="connectToPC()">
                 接続
               </button>
             </div>
           </div>
 
-          <div class="qr-section">
-            <button type="button" id="btn-qr" class="btn-qr" onclick="toggleQrScanner()">
-              <i class="bi bi-qr-code-scan"></i> <span id="qrBtnLabel">QRコード読み取り</span>
+          <button type="button" id="btn-qr" class="btn-qr-toggle" onclick="toggleQrScanner()">
+            <i class="bi bi-qr-code-scan"></i> <span id="qrBtnLabel">QRコード読み取り</span>
+          </button>
+          <div id="qr-reader" style="display: none;"></div>
+
+          <div class="toggle-option-box">
+            <span><i class="bi bi-camera-video"></i> カメラを常時表示</span>
+            <button
+              type="button"
+              id="alwaysCameraBtn"
+              class="switch-btn is-on"
+              onclick="toggleAlwaysCameraSetting()"
+            >
+              ON
             </button>
-            <div id="qr-reader" style="display: none;"></div>
           </div>
 
-          <div class="setting-switches">
-            <div class="setting-toggle-row">
-              <div class="setting-label-group">
-                <span><i class="bi bi-eye"></i> カメラを常時表示</span>
-                <span class="setting-sub">ONにすると探す画面を開いたときに映像を表示します</span>
-              </div>
-              <button
-                type="button"
-                id="alwaysCameraBtn"
-                class="pill-toggle-btn is-on"
-                onclick="toggleAlwaysCameraSetting()"
-              >
-                ON
-              </button>
-            </div>
-
-            <div class="setting-toggle-row">
-              <div class="setting-label-group">
-                <span><i class="bi bi-bell"></i> 通知音</span>
-                <span class="setting-sub">物体を発見したときにサウンドでお知らせします</span>
-              </div>
-              <button
-                type="button"
-                id="notifyToggleBtn"
-                class="pill-toggle-btn"
-                onclick="toggleNotificationSetting()"
-              >
-                OFF
-              </button>
-            </div>
+          <div class="toggle-option-box">
+            <span><i class="bi bi-bell"></i> 通知音</span>
+            <button
+              type="button"
+              id="notifyToggleBtn"
+              class="switch-btn"
+              onclick="toggleNotificationSetting()"
+            >
+              OFF
+            </button>
           </div>
 
-          <div id="connectionStatus" class="status-text">ステータス: 未接続</div>
+          <div id="connectionStatus" class="status-line">ステータス: 未接続</div>
 
-          <button type="button" class="btn-save-settings" onclick="saveAllSettings()">
-            <i class="bi bi-check2-circle"></i> 設定を保存
+          <button type="button" class="btn-save-main" onclick="saveAllSettings()">
+            設定を保存
           </button>
         </div>
       </div>
     </main>
 
-    <nav class="nav-bar">
-      <button type="button" id="nav-home" class="nav-item active" onclick="goToTab('home')">
+    <nav class="bottom-nav">
+      <button type="button" id="nav-home" class="nav-btn active" onclick="goToTab('home')">
         <i class="bi bi-house-door"></i>
         <span>ホーム</span>
       </button>
-      <button type="button" id="nav-search" class="nav-item" onclick="goToTab('search')">
+      <button type="button" id="nav-search" class="nav-btn" onclick="goToTab('search')">
         <i class="bi bi-search"></i>
         <span>探す</span>
       </button>
-      <button type="button" id="nav-setting" class="nav-item" onclick="goToTab('setting')">
+      <button type="button" id="nav-setting" class="nav-btn" onclick="goToTab('setting')">
         <i class="bi bi-gear"></i>
         <span>設定</span>
       </button>
@@ -1211,9 +924,9 @@
             style="display: none;"
             onclick="backToFolderList()"
           >
-            <i class="bi bi-arrow-left"></i> フォルダ一覧
+            <i class="bi bi-arrow-left"></i> 一覧
           </button>
-          <h3 id="historyModalTitle">📂 発見した物体一覧</h3>
+          <h3 id="historyModalTitle">📂 発見履歴</h3>
         </div>
         <div class="modal-header-right">
           <button type="button" class="btn-clear-history" onclick="clearGallery()">
