@@ -47,14 +47,14 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#746485") {
+function setStatus(text, color = "#5c7186") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#746485") {
+function setConnectionStatus(text, color = "#5c7186") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
@@ -415,7 +415,7 @@ window.saveAllSettings = function () {
     isCameraViewOpen = isAlwaysCameraEnabled;
     syncCameraViewUi();
 
-    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#047857");
+    setConnectionStatus("設定を保存しました。接続処理を実行中...", "#0f766e");
     if (rawId) {
       window.connectToPC();
     }
@@ -444,7 +444,7 @@ if (peer) {
         video.srcObject = remoteStream;
       }
       webcamRunning = true;
-      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#047857");
+      setStatus(`ステータス: 探索中... (${currentFinalizedKeyword})`, "#0f766e");
     });
   });
 
@@ -463,7 +463,7 @@ window.connectToServerOnly = function () {
   try {
     localStorage.setItem(SERVER_URL_STORAGE_KEY, url);
   } catch (e) {}
-  setConnectionStatus("サーバIDを保存しました", "#047857");
+  setConnectionStatus("サーバIDを保存しました", "#0f766e");
   alert("サーバIDを登録しました");
 };
 
@@ -490,8 +490,8 @@ window.connectToPC = function () {
 
   conn = peer.connect(pcId);
   conn.on("open", () => {
-    setStatus("ステータス: 接続完了", "#047857");
-    setConnectionStatus("ステータス: 接続完了", "#047857");
+    setStatus("ステータス: 接続完了", "#0f766e");
+    setConnectionStatus("ステータス: 接続完了", "#0f766e");
     if (startButton) {
       startButton.disabled = false;
     }
@@ -549,8 +549,8 @@ window.toggleQrScanner = async function () {
             btn.classList.remove("is-stop");
           }
           readerContainer.style.display = "none";
-          setStatus("IDを取得しました。設定を保存するか接続を押してください", "#047857");
-          setConnectionStatus("IDを取得しました。「設定を保存」または「接続」を押してください", "#047857");
+          setStatus("IDを取得しました。設定を保存するか接続を押してください", "#0f766e");
+          setConnectionStatus("IDを取得しました。「設定を保存」または「接続」を押してください", "#0f766e");
         },
         () => {}
       );
@@ -632,9 +632,9 @@ window.updateTarget = async function () {
     syncSearchVisualState();
 
     if (isSearching) {
-      setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#047857");
+      setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#0f766e");
     } else {
-      setStatus(`「${keyword}」→ [${currentFinalizedKeyword}] に設定しました`, "#047857");
+      setStatus(`「${keyword}」→ [${currentFinalizedKeyword}] に設定しました`, "#0f766e");
     }
   } catch (err) {
     console.error(err);
@@ -687,7 +687,7 @@ window.startDetection = async function () {
     isCameraViewOpen = true;
     syncCameraViewUi();
     syncSearchVisualState();
-    setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#047857");
+    setStatus(`「${currentFinalizedKeyword}」を探索中...`, "#0f766e");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -709,7 +709,7 @@ window.startDetection = async function () {
     }
     clearBoundingBoxCanvas();
 
-    setStatus("ステータス: 停止しました", "#746485");
+    setStatus("ステータス: 停止しました", "#5c7186");
   }
 };
 
@@ -820,7 +820,7 @@ function drawDetections(detections) {
     const w = ((xmax - xmin) / 1000) * renderWidth;
     const h = ((ymax - ymin) / 1000) * renderHeight;
 
-    ctx.strokeStyle = "#10b981";
+    ctx.strokeStyle = "#0d9488";
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
@@ -831,7 +831,7 @@ function drawDetections(detections) {
     const badgeH = 20;
     const badgeY = y > badgeH + 3 ? y - badgeH - 3 : y + 3;
 
-    ctx.fillStyle = "rgba(16, 185, 129, 0.92)";
+    ctx.fillStyle = "rgba(13, 148, 136, 0.92)";
     ctx.fillRect(x, badgeY, badgeW, badgeH);
 
     ctx.fillStyle = "#ffffff";
