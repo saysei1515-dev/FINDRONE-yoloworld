@@ -172,26 +172,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 16px;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+      gap: 20px;
     }
 
-    .drone-hero {
+    .home-icon-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 24px;
+      gap: 10px;
     }
 
-    .drone-svg {
-      width: 84px;
-      height: 68px;
-      stroke: var(--accent-pink);
-      fill: var(--accent-pink-bg);
-      stroke-width: 2.5;
+    .home-drone-icon {
+      width: 104px;
+      height: 104px;
+      object-fit: contain;
+      border-radius: 20px;
     }
 
     .home-brand-text {
-      margin-top: 6px;
       font-size: 20px;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -200,10 +200,10 @@
 
     .home-menu-stack {
       width: 100%;
-      max-width: 320px;
+      max-width: 300px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* 探す画面 */
@@ -263,7 +263,6 @@
       border-color: var(--accent-pink);
     }
 
-    /* カメラ枠 */
     .camera-frame-box {
       position: relative;
       width: 100%;
@@ -333,7 +332,6 @@
       cursor: pointer;
     }
 
-    /* 発見通知バー（高さ固定でレイアウトシフト防止） */
     .found-toast {
       display: flex;
       align-items: center;
@@ -699,17 +697,8 @@
       <!-- ================= ホーム画面 ================= -->
       <div id="homeTab" class="tab-content active">
         <div class="home-screen">
-          <div class="drone-hero">
-            <svg class="drone-svg" viewBox="0 0 100 80" aria-hidden="true">
-              <circle cx="22" cy="20" r="12" />
-              <circle cx="78" cy="20" r="12" />
-              <line x1="31" y1="28" x2="43" y2="39" />
-              <line x1="69" y1="28" x2="57" y2="39" />
-              <rect x="38" y="36" width="24" height="22" rx="7" />
-              <circle cx="50" cy="47" r="4.5" />
-              <line x1="42" y1="58" x2="36" y2="68" />
-              <line x1="58" y1="58" x2="64" y2="68" />
-            </svg>
+          <div class="home-icon-box">
+            <img src="drone.png" alt="FINDRONE アイコン" class="home-drone-icon" />
             <div class="home-brand-text">FINDRONE</div>
           </div>
 
@@ -793,7 +782,6 @@
             </div>
           </div>
 
-          <!-- 高さを完全固定し、通知の有無でカメラ枠や下の表示が上下に動かないようにする -->
           <div
             id="foundToast"
             class="found-toast"
@@ -877,7 +865,7 @@
       </div>
     </main>
 
-    <!-- 下部ナビゲーション（ホーム／探す／設定） -->
+    <!-- 下部ナビゲーション -->
     <nav class="bottom-nav">
       <button type="button" id="nav-home" class="nav-item active" onclick="goToTab('home')">
         <i class="bi bi-house"></i>
