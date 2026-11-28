@@ -91,7 +91,10 @@ function hideFoundBannerAndBadge() {
 
   latestDetectedObjectName = "";
   if (toastTextEl) toastTextEl.innerText = "";
-  if (toastEl) toastEl.classList.remove("is-visible");
+  if (toastEl) {
+    toastEl.style.display = "flex";
+    toastEl.classList.remove("is-visible");
+  }
   if (badge) {
     badge.innerText = "×0";
     badge.style.display = "none";
@@ -109,21 +112,14 @@ function updateBannerAndCount(detections) {
     return;
   }
 
-  const fallbackName = currentFinalizedKeyword;
-  const targetKey = (fallbackName || "").trim().toLowerCase();
-  const matched = detections.filter((det) => {
-    if (!targetKey) return true;
-    const label = String(det.label || "").trim().toLowerCase();
-    return label === targetKey || label.includes(targetKey);
-  });
-  const targetDetections = matched.length > 0 ? matched : detections;
-  const count = targetDetections.length;
-  const primary = targetDetections[0];
-  const objectName = (primary.label || fallbackName || "未分類").trim();
+  const primary = detections[0];
+  const objectName = String(primary.label || currentFinalizedKeyword || "未分類").trim();
   const confText = primary.confidence !== undefined ? ` (${primary.confidence})` : "";
+  const count = detections.length;
 
   latestDetectedObjectName = objectName;
   toastTextEl.innerText = `🎉「${objectName}」を発見！${confText}`;
+  toastEl.style.display = "flex";
   toastEl.classList.add("is-visible");
 
   if (count > 0) {
