@@ -9,19 +9,22 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root {
-      --bg-grad-1: #fdf2f8;
-      --bg-grad-2: #f3e8ff;
-      --bg-grad-3: #ecfdf5;
-      --card-bg: rgba(255, 255, 255, 0.78);
-      --card-border: rgba(255, 255, 255, 0.9);
-      --text-main: #4a2c48;
-      --text-sub: #8c7388;
-      --accent-pink: #ec4899;
-      --accent-purple: #8b5cf6;
-      --accent-mint: #10b981;
-      --accent-mint-dark: #247a5d;
+      --bg-1: #faf5ff;
+      --bg-2: #fdf2f8;
+      --bg-3: #eefbf5;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-strong: rgba(255, 255, 255, 0.92);
+      --border-glass: rgba(255, 255, 255, 0.88);
+      --border-subtle: rgba(124, 58, 237, 0.14);
+      --ink-main: #2e1d36;
+      --ink-sub: #7a6382;
+      --grad-primary: linear-gradient(135deg, #ec4899 0%, #8b5cf6 55%, #06b6d4 100%);
+      --grad-active: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --grad-stop: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+      --mint-glow: rgba(16, 185, 129, 0.35);
+      --purple-glow: rgba(139, 92, 246, 0.16);
       --danger: #e11d48;
-      --shadow-soft: 0 10px 28px rgba(139, 92, 246, 0.1);
+      --shadow-card: 0 14px 34px rgba(76, 29, 149, 0.08);
     }
 
     * {
@@ -32,20 +35,25 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
-      background: linear-gradient(145deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 52%, var(--bg-grad-3) 100%);
-      color: var(--text-main);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(236, 72, 153, 0.14) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(139, 92, 246, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 50% 92%, rgba(16, 185, 129, 0.14) 0%, transparent 48%),
+        linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      color: var(--ink-main);
       min-height: 100vh;
     }
 
     .app-shell {
-      max-width: 520px;
+      max-width: 500px;
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 80px;
+      padding-bottom: 84px;
     }
 
+    /* ヘッダー */
     .app-header {
       position: sticky;
       top: 0;
@@ -54,35 +62,38 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-glass);
     }
 
     .brand-area {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .brand-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 11px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: var(--grad-primary);
       color: #fff;
-      font-size: 15px;
-      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+      font-size: 16px;
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.28);
     }
 
     .brand-title {
       font-size: 17px;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      color: var(--text-main);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      background: var(--grad-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .history-open-btn {
@@ -90,26 +101,32 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 12px;
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-main);
+      padding: 8px 13px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--surface-strong);
+      color: var(--ink-main);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .history-open-btn:active {
+      transform: scale(0.97);
     }
 
     .unread-badge {
       padding: 1px 6px;
       border-radius: 999px;
-      background: var(--accent-pink);
+      background: var(--grad-stop);
       color: #fff;
       font-size: 11px;
       font-weight: 800;
     }
 
+    /* メイン */
     .app-main {
       flex: 1;
       padding: 14px;
@@ -121,129 +138,216 @@
 
     .tab-content.active {
       display: block;
+      animation: fadeTab 0.18s ease;
+    }
+
+    @keyframes fadeTab {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .glass-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(14px);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
+      background: var(--surface);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
       padding: 16px;
       margin-bottom: 14px;
-      box-shadow: var(--shadow-soft);
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
 
     .card-title {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
-      margin-bottom: 12px;
-      color: var(--text-main);
+      color: var(--ink-main);
+      letter-spacing: 0.02em;
     }
 
     .card-title i {
-      color: var(--accent-purple);
+      font-size: 16px;
+      color: #8b5cf6;
     }
 
-    .form-group {
-      margin-bottom: 14px;
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(122, 99, 130, 0.1);
+      color: var(--ink-sub);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
     }
 
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-sub);
-      margin-bottom: 6px;
+    .live-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #94a3b8;
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 11px 13px;
-      border-radius: 12px;
-      border: 1px solid rgba(139, 92, 246, 0.22);
-      background: rgba(255, 255, 255, 0.92);
-      color: var(--text-main);
-      font-size: 14px;
+    .live-pill.is-searching {
+      background: rgba(16, 185, 129, 0.16);
+      color: #065f46;
     }
 
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--accent-pink);
-      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.14);
+    .live-pill.is-searching .dot {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
     }
 
-    .input-with-btn,
-    .search-input-row {
+    /* 入力・ボタン */
+    .search-input-row,
+    .input-with-btn {
       display: flex;
       gap: 8px;
     }
 
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-strong);
+      color: var(--ink-main);
+      font-size: 14px;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="text"]::placeholder {
+      color: #a48ea9;
+      font-weight: 500;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.14);
+    }
+
     .btn-decide,
     .btn-sub {
-      padding: 0 14px;
+      padding: 0 16px;
       border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      border-radius: 14px;
+      background: var(--grad-primary);
       color: #fff;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 13px;
       cursor: pointer;
       white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.22);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.24);
+      transition: transform 0.12s ease, filter 0.15s ease;
     }
 
+    .btn-decide:active,
+    .btn-sub:active {
+      transform: scale(0.97);
+    }
+
+    /* 高さを固定してレイアウトのズレを防止する通知バー */
     .found-toast {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
       margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(181, 242, 214, 0.65);
-      border: 1px solid rgba(16, 185, 129, 0.5);
-      color: #1f4d3d;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(209, 250, 229, 0.9), rgba(167, 243, 208, 0.85));
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #064e3b;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.14);
+      visibility: hidden;
+      opacity: 0;
+      cursor: pointer;
+      transition: opacity 0.16s ease;
+    }
+
+    .found-toast.is-visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .found-toast-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .detected-count-badge {
       padding: 2px 8px;
       border-radius: 999px;
-      background: var(--accent-mint);
+      background: #059669;
       color: #fff;
       font-size: 12px;
       font-weight: 800;
     }
 
+    .toast-folder-hint {
+      font-size: 11px;
+      font-weight: 700;
+      color: #047857;
+      text-decoration: underline;
+    }
+
     .search-actions-row {
-      margin-top: 12px;
+      margin-top: 10px;
       display: flex;
       gap: 8px;
     }
 
     .btn-primary-search {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       border: none;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      border-radius: 16px;
+      background: var(--grad-primary);
       color: #fff;
       font-size: 15px;
-      font-weight: 800;
+      font-weight: 900;
+      letter-spacing: 0.04em;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
+      box-shadow: 0 8px 22px rgba(139, 92, 246, 0.3);
+      transition: transform 0.12s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-primary-search:active:not(:disabled) {
+      transform: scale(0.98);
     }
 
     .btn-primary-search.active-stop {
-      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      background: var(--grad-stop);
+      box-shadow: 0 8px 22px rgba(225, 29, 72, 0.28);
     }
 
     .btn-primary-search:disabled {
-      opacity: 0.5;
+      opacity: 0.48;
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -252,21 +356,30 @@
       margin-top: 10px;
       font-size: 12px;
       font-weight: 700;
-      color: var(--text-sub);
+      color: var(--ink-sub);
       text-align: center;
+      line-height: 1.45;
     }
 
+    /* カメラカード */
     .camera-card {
       padding: 10px;
+      border-radius: 26px;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .camera-card.is-searching {
+      border-color: rgba(16, 185, 129, 0.65);
+      box-shadow: 0 14px 34px var(--mint-glow);
     }
 
     .camera-viewport {
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
-      border-radius: 15px;
+      border-radius: 18px;
       overflow: hidden;
-      background: #1e1624;
+      background: #160f1d;
     }
 
     .camera-viewport video,
@@ -282,31 +395,57 @@
       pointer-events: none;
     }
 
+    /* 設定画面 */
+    .step-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.12);
+      color: #7c3aed;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ink-main);
+      margin-bottom: 6px;
+    }
+
     .qr-section {
-      margin: 12px 0;
+      margin: 12px 0 14px;
     }
 
     .btn-qr {
       width: 100%;
-      padding: 10px;
-      border: 1px solid rgba(139, 92, 246, 0.24);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-main);
+      padding: 11px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      background: var(--surface-strong);
+      color: var(--ink-main);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
+      transition: background 0.15s ease;
     }
 
     .btn-qr.active-stop {
-      background: var(--danger);
+      background: var(--grad-stop);
       color: #fff;
-      border-color: var(--danger);
+      border-color: transparent;
     }
 
     #qr-reader {
       margin-top: 10px;
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
     }
 
@@ -314,12 +453,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.75);
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border-subtle);
       font-size: 13px;
-      font-weight: 700;
-      color: var(--text-main);
+      font-weight: 800;
+      color: var(--ink-main);
     }
 
     .notify-toggle-btn {
@@ -331,39 +471,47 @@
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .notify-toggle-btn.is-on {
-      background: var(--accent-mint);
+      background: var(--grad-active);
       color: #fff;
     }
 
     .btn-save-settings {
       width: 100%;
       margin-top: 14px;
-      padding: 12px;
+      padding: 13px;
       border: none;
-      border-radius: 13px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      border-radius: 16px;
+      background: var(--grad-primary);
       color: #fff;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 900;
+      letter-spacing: 0.03em;
       cursor: pointer;
-      box-shadow: 0 5px 14px rgba(139, 92, 246, 0.22);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.26);
     }
 
+    /* 下部ナビゲーション */
     .nav-bar {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 476px;
       z-index: 30;
       display: flex;
-      justify-content: space-around;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(255, 255, 255, 0.9);
-      padding: 6px 8px;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 6px;
+      box-shadow: 0 10px 28px rgba(76, 29, 149, 0.12);
     }
 
     .nav-item {
@@ -372,14 +520,15 @@
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 6px 4px;
+      padding: 7px 4px;
       border: none;
-      border-radius: 12px;
+      border-radius: 15px;
       background: transparent;
-      color: var(--text-sub);
+      color: var(--ink-sub);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
 
     .nav-item i {
@@ -387,10 +536,12 @@
     }
 
     .nav-item.active {
-      color: var(--accent-pink);
-      background: rgba(236, 72, 153, 0.1);
+      color: #fff;
+      background: var(--grad-primary);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
     }
 
+    /* モーダル */
     .modal-backdrop,
     .preview-backdrop {
       position: fixed;
@@ -399,8 +550,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(74, 44, 72, 0.45);
-      backdrop-filter: blur(6px);
+      background: rgba(46, 29, 54, 0.48);
+      backdrop-filter: blur(8px);
       padding: 16px;
     }
 
@@ -410,11 +561,11 @@
       max-height: 82vh;
       display: flex;
       flex-direction: column;
-      border-radius: 20px;
-      background: #fff9fc;
-      color: var(--text-main);
+      border-radius: 24px;
+      background: #fffafe;
+      color: var(--ink-main);
       border: 1px solid #fff;
-      box-shadow: 0 16px 36px rgba(74, 44, 72, 0.22);
+      box-shadow: 0 20px 44px rgba(46, 29, 54, 0.25);
       overflow: hidden;
     }
 
@@ -423,9 +574,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 12px 14px;
-      background: rgba(253, 242, 248, 0.95);
-      border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+      padding: 13px 15px;
+      background: rgba(250, 245, 255, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .modal-header-left,
@@ -438,6 +589,7 @@
     .modal-header h3 {
       margin: 0;
       font-size: 14px;
+      font-weight: 800;
     }
 
     .btn-back-folder,
@@ -445,25 +597,25 @@
     .btn-close-modal {
       padding: 6px 10px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
     }
 
     .btn-back-folder {
       background: rgba(139, 92, 246, 0.14);
-      color: var(--text-main);
+      color: var(--ink-main);
     }
 
     .btn-clear-history {
-      background: rgba(225, 29, 72, 0.14);
+      background: rgba(225, 29, 72, 0.12);
       color: var(--danger);
     }
 
     .btn-close-modal {
-      background: rgba(140, 115, 136, 0.15);
-      color: var(--text-main);
+      background: rgba(122, 99, 130, 0.14);
+      color: var(--ink-main);
     }
 
     .modal-body {
@@ -480,30 +632,32 @@
     .folder-card {
       position: relative;
       padding: 10px;
-      border-radius: 14px;
+      border-radius: 16px;
       background: #fff;
-      border: 1px solid rgba(139, 92, 246, 0.14);
+      border: 1px solid var(--border-subtle);
       text-align: center;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.06);
     }
 
     .folder-thumb {
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 10px;
-      background: #fdf2f8;
+      border-radius: 12px;
+      background: #faf5ff;
     }
 
     .folder-name {
-      margin-top: 6px;
+      margin-top: 7px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .folder-count {
       font-size: 11px;
-      color: var(--text-sub);
+      color: var(--ink-sub);
+      font-weight: 700;
     }
 
     .photo-grid {
@@ -528,7 +682,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
     }
 
@@ -536,8 +690,8 @@
       position: absolute;
       top: -6px;
       right: -6px;
-      width: 20px;
-      height: 20px;
+      width: 21px;
+      height: 21px;
       border: none;
       border-radius: 999px;
       background: var(--danger);
@@ -550,45 +704,46 @@
     .photo-time-label {
       margin-top: 4px;
       font-size: 10px;
-      color: var(--text-sub);
+      color: var(--ink-sub);
       text-align: center;
     }
 
     .empty-history-msg {
       text-align: center;
-      color: var(--text-sub);
-      padding: 24px 8px;
+      color: var(--ink-sub);
+      padding: 28px 8px;
       font-size: 13px;
+      font-weight: 700;
     }
 
     .preview-backdrop {
       flex-direction: column;
       z-index: 200;
-      background: rgba(30, 16, 29, 0.78);
+      background: rgba(24, 14, 30, 0.82);
     }
 
     .preview-image {
       max-width: 92vw;
       max-height: 75vh;
-      border-radius: 14px;
+      border-radius: 16px;
       border: 2px solid #fff;
       background: #fff;
     }
 
     .preview-time-badge {
       margin-top: 10px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.92);
-      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--ink-main);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .preview-hint {
       margin-top: 10px;
       font-size: 12px;
-      color: #fdf2f8;
+      color: #f5d0fe;
     }
   </style>
 </head>
@@ -596,7 +751,7 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="brand-area">
-        <span class="brand-badge"><i class="bi bi-search"></i></span>
+        <span class="brand-badge"><i class="bi bi-bounding-box-circles"></i></span>
         <span class="brand-title">FINDRONE</span>
       </div>
       <button type="button" class="history-open-btn" onclick="openHistoryFolder()">
@@ -609,8 +764,14 @@
       <!-- ================= 探索モード画面 ================= -->
       <div id="searchTab" class="tab-content active">
         <div class="glass-card">
-          <div class="card-title">
-            <i class="bi bi-crosshair"></i> 探すものを指定
+          <div class="card-header-row">
+            <div class="card-title">
+              <i class="bi bi-crosshair"></i> 探すものを指定
+            </div>
+            <div id="searchLivePill" class="live-pill">
+              <span class="dot"></span>
+              <span id="searchLiveText">STANDBY</span>
+            </div>
           </div>
 
           <div class="search-input-row">
@@ -625,9 +786,17 @@
             </button>
           </div>
 
-          <div id="foundToast" class="found-toast" style="display: none;">
+          <div
+            id="foundToast"
+            class="found-toast"
+            title="タップして履歴フォルダを開く"
+            onclick="openFoundObjectFolder()"
+          >
             <span id="foundToastText"></span>
-            <span id="detectedCountBadge" class="detected-count-badge" style="display: none;">×0</span>
+            <span class="found-toast-meta">
+              <span id="detectedCountBadge" class="detected-count-badge" style="display: none;">×0</span>
+              <span class="toast-folder-hint">履歴を見る</span>
+            </span>
           </div>
 
           <div class="search-actions-row">
@@ -653,7 +822,7 @@
           <div id="status" class="status-text">ステータス: 初期化中...</div>
         </div>
 
-        <div class="glass-card camera-card">
+        <div id="cameraCard" class="glass-card camera-card">
           <div class="camera-viewport">
             <video id="video" autoplay muted playsinline></video>
             <canvas id="outputCanvas"></canvas>
@@ -664,11 +833,14 @@
       <!-- ================= 設定画面 ================= -->
       <div id="settingTab" class="tab-content">
         <div class="glass-card">
-          <div class="card-title">
-            <i class="bi bi-sliders"></i> 接続・通知設定
+          <div class="card-header-row">
+            <div class="card-title">
+              <i class="bi bi-sliders"></i> 接続・通知設定
+            </div>
           </div>
 
           <div class="form-group">
+            <span class="step-badge">STEP 1</span>
             <label for="serverIp">AIサーバー URL / IP</label>
             <div class="input-with-btn">
               <input
@@ -683,6 +855,7 @@
           </div>
 
           <div class="form-group">
+            <span class="step-badge">STEP 2</span>
             <label for="pcIdInput">PC 接続ID</label>
             <div class="input-with-btn">
               <input
