@@ -46,7 +46,6 @@
       padding-bottom: 80px;
     }
 
-    /* ヘッダー */
     .app-header {
       position: sticky;
       top: 0;
@@ -111,7 +110,6 @@
       font-weight: 800;
     }
 
-    /* メイン */
     .app-main {
       flex: 1;
       padding: 14px;
@@ -147,21 +145,6 @@
 
     .card-title i {
       color: var(--accent-purple);
-    }
-
-    .card-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .register-status-text {
-      font-size: 12px;
-      color: var(--text-sub);
-      font-weight: 600;
     }
 
     .form-group {
@@ -210,32 +193,6 @@
       cursor: pointer;
       white-space: nowrap;
       box-shadow: 0 4px 12px rgba(139, 92, 246, 0.22);
-    }
-
-    .active-visual-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 12px;
-      background: rgba(16, 185, 129, 0.14);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: var(--accent-mint-dark);
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .clear-visual-btn {
-      padding: 4px 8px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-main);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
     }
 
     .found-toast {
@@ -325,306 +282,6 @@
       pointer-events: none;
     }
 
-    /* ================= 物体登録・編集エリア（元の淡色トーンに調和） ================= */
-    .reg-photo-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-reg-action {
-      flex: 1;
-      padding: 10px 12px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
-      color: #fff;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
-    }
-
-    .btn-reg-action.secondary {
-      background: rgba(255, 255, 255, 0.92);
-      color: var(--text-main);
-      border: 1px solid rgba(139, 92, 246, 0.24);
-      box-shadow: none;
-    }
-
-    .sample-preview-card {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(139, 92, 246, 0.18);
-    }
-
-    .sample-preview-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-
-    .sample-counter-label {
-      font-size: 12px;
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
-    .sample-top-buttons {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-sample-crop {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 9px;
-      background: var(--accent-mint);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-sample-crop.is-active {
-      background: #f59e0b;
-      color: #fff;
-    }
-
-    .btn-sample-delete {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 9px;
-      background: rgba(225, 29, 72, 0.12);
-      color: var(--danger);
-      border: 1px solid rgba(225, 29, 72, 0.28);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .crop-stage {
-      position: relative;
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #faf5ff;
-      border: 1px solid rgba(139, 92, 246, 0.15);
-    }
-
-    .crop-preview-img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .crop-canvas {
-      display: none;
-      width: 100%;
-      height: auto;
-      touch-action: none;
-      cursor: crosshair;
-    }
-
-    .crop-canvas.is-cropping {
-      display: block;
-    }
-
-    .crop-action-bar {
-      margin-top: 8px;
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(243, 232, 255, 0.75);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-    }
-
-    .crop-guide-text {
-      display: block;
-      font-size: 12px;
-      color: var(--text-main);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .crop-action-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-crop-apply {
-      flex: 1;
-      padding: 7px 10px;
-      border: none;
-      border-radius: 9px;
-      background: var(--accent-mint);
-      color: #fff;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .btn-crop-cancel {
-      padding: 7px 12px;
-      border: none;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-sub);
-      border: 1px solid rgba(140, 115, 136, 0.25);
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .draft-thumbs-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .draft-thumb {
-      width: 54px;
-      height: 54px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 2px solid transparent;
-      cursor: pointer;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.12);
-    }
-
-    .draft-thumb.is-selected {
-      border-color: var(--accent-pink);
-    }
-
-    .draft-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .reg-submit-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .btn-save-object {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 13px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
-      color: #fff;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 5px 14px rgba(139, 92, 246, 0.22);
-    }
-
-    .btn-cancel-edit {
-      padding: 12px 14px;
-      border: none;
-      border-radius: 13px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-sub);
-      border: 1px solid rgba(140, 115, 136, 0.25);
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .registered-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .registered-item-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.84);
-      border: 1px solid rgba(139, 92, 246, 0.14);
-    }
-
-    .registered-item-thumb {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #fdf2f8;
-      flex-shrink: 0;
-    }
-
-    .registered-item-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .registered-item-name {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .registered-item-meta {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-top: 2px;
-    }
-
-    .registered-item-actions {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .btn-use-item {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 9px;
-      background: var(--accent-mint);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-edit-item {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 9px;
-      background: rgba(139, 92, 246, 0.14);
-      color: var(--accent-purple);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-del-item {
-      padding: 6px 8px;
-      border: none;
-      border-radius: 9px;
-      background: rgba(225, 29, 72, 0.12);
-      color: var(--danger);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* ================= 設定画面 ================= */
     .qr-section {
       margin: 12px 0;
     }
@@ -695,7 +352,6 @@
       box-shadow: 0 5px 14px rgba(139, 92, 246, 0.22);
     }
 
-    /* ================= 下部ナビゲーション ================= */
     .nav-bar {
       position: fixed;
       bottom: 0;
@@ -735,7 +391,6 @@
       background: rgba(236, 72, 153, 0.1);
     }
 
-    /* ================= モーダル・プレビュー ================= */
     .modal-backdrop,
     .preview-backdrop {
       position: fixed;
@@ -939,7 +594,6 @@
 </head>
 <body>
   <div class="app-shell">
-    <!-- ヘッダー -->
     <header class="app-header">
       <div class="brand-area">
         <span class="brand-badge"><i class="bi bi-search"></i></span>
@@ -951,20 +605,12 @@
       </button>
     </header>
 
-    <!-- メインコンテンツ -->
     <main class="app-main">
       <!-- ================= 探索モード画面 ================= -->
       <div id="searchTab" class="tab-content active">
         <div class="glass-card">
           <div class="card-title">
             <i class="bi bi-crosshair"></i> 探すものを指定
-          </div>
-
-          <div id="activeVisualBanner" class="active-visual-banner" style="display: none;">
-            <span id="activeVisualLabel"></span>
-            <button type="button" class="clear-visual-btn" onclick="clearSelectedVisualItem()">
-              解除
-            </button>
           </div>
 
           <div class="search-input-row">
@@ -1012,123 +658,6 @@
             <video id="video" autoplay muted playsinline></video>
             <canvas id="outputCanvas"></canvas>
           </div>
-        </div>
-      </div>
-
-      <!-- ================= 物体登録モード画面 ================= -->
-      <div id="registerTab" class="tab-content">
-        <div class="glass-card">
-          <div class="card-title">
-            <i class="bi bi-plus-circle-fill"></i>
-            <span id="registerFormTitle">新しい持ち物を登録</span>
-          </div>
-
-          <div class="form-group">
-            <label for="registerNameInput">1. 物体の名前を入力</label>
-            <input
-              type="text"
-              id="registerNameInput"
-              placeholder="例: 鍵、水筒、ペンケースなど"
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="form-group">
-            <label>2. 写真を撮るか、選択する</label>
-            <div class="reg-photo-actions">
-              <button type="button" class="btn-reg-action" onclick="triggerRegisterCamera()">
-                <i class="bi bi-camera-fill"></i> 写真を撮る
-              </button>
-              <button type="button" class="btn-reg-action secondary" onclick="triggerRegisterGallery()">
-                <i class="bi bi-images"></i> 写真を選ぶ
-              </button>
-            </div>
-            <input
-              type="file"
-              id="registerCameraInput"
-              accept="image/*"
-              capture="environment"
-              style="display: none;"
-              onchange="handleRegisterFiles(this.files); this.value='';"
-            />
-            <input
-              type="file"
-              id="registerGalleryInput"
-              accept="image/*"
-              multiple
-              style="display: none;"
-              onchange="handleRegisterFiles(this.files); this.value='';"
-            />
-          </div>
-
-          <!-- 見本画像表示エリア（右上に「切り抜く」「削除」ボタン） -->
-          <div id="samplePreviewCard" class="sample-preview-card" style="display: none;">
-            <div class="sample-preview-header">
-              <span id="sampleCounterLabel" class="sample-counter-label">見本 1 / 1</span>
-              <div class="sample-top-buttons">
-                <button
-                  type="button"
-                  id="toggleCropModeBtn"
-                  class="btn-sample-crop"
-                  onclick="toggleCropMode()"
-                >
-                  <i class="bi bi-crop"></i> 切り抜く
-                </button>
-                <button
-                  type="button"
-                  class="btn-sample-delete"
-                  onclick="deleteCurrentDraftSample()"
-                >
-                  <i class="bi bi-trash3-fill"></i> 削除
-                </button>
-              </div>
-            </div>
-
-            <div id="cropStage" class="crop-stage">
-              <img id="cropPreviewImg" class="crop-preview-img" alt="見本画像" />
-              <canvas id="cropCanvas" class="crop-canvas"></canvas>
-            </div>
-
-            <div id="cropActionBar" class="crop-action-bar" style="display: none;">
-              <span class="crop-guide-text">指でなぞって切り抜く範囲を指定してください</span>
-              <div class="crop-action-buttons">
-                <button type="button" class="btn-crop-apply" onclick="applyCropSelection()">
-                  切り抜き確定
-                </button>
-                <button type="button" class="btn-crop-cancel" onclick="cancelCropMode()">
-                  やめる
-                </button>
-              </div>
-            </div>
-
-            <!-- 複数枚あるときのサムネイル一覧 -->
-            <div id="draftThumbsRow" class="draft-thumbs-row"></div>
-          </div>
-
-          <div class="reg-submit-row">
-            <button type="button" id="saveRegisteredBtn" class="btn-save-object" onclick="saveRegisteredObject()">
-              <i class="bi bi-check-circle-fill"></i> 登録する
-            </button>
-            <button
-              type="button"
-              id="cancelEditBtn"
-              class="btn-cancel-edit"
-              style="display: none;"
-              onclick="cancelEditingRegisteredItem()"
-            >
-              編集キャンセル
-            </button>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title" style="margin-bottom: 0;">
-              <i class="bi bi-collection-fill"></i> 登録済みの持ち物
-            </div>
-            <span id="registerStatus" class="register-status-text">登録済みアイテムはありません</span>
-          </div>
-          <div id="registeredList" class="registered-list"></div>
         </div>
       </div>
 
@@ -1195,15 +724,10 @@
       </div>
     </main>
 
-    <!-- 下部ナビゲーション -->
     <nav class="nav-bar">
       <button type="button" id="nav-search" class="nav-item active" onclick="goToTab('search')">
         <i class="bi bi-search"></i>
         <span>探索</span>
-      </button>
-      <button type="button" id="nav-register" class="nav-item" onclick="goToTab('register')">
-        <i class="bi bi-plus-square"></i>
-        <span>物体登録</span>
       </button>
       <button type="button" id="nav-setting" class="nav-item" onclick="goToTab('setting')">
         <i class="bi bi-gear"></i>
@@ -1212,7 +736,6 @@
     </nav>
   </div>
 
-  <!-- 発見履歴フォルダモーダル -->
   <div id="historyFolderModal" class="modal-backdrop" style="display: none;" onclick="closeHistoryFolder()">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -1241,7 +764,6 @@
     </div>
   </div>
 
-  <!-- 画像拡大プレビューモーダル -->
   <div id="imagePreviewModal" class="preview-backdrop" style="display: none;" onclick="closePreview()">
     <img id="previewImage" class="preview-image" alt="発見画像プレビュー" onclick="event.stopPropagation()" />
     <div id="previewFoundTime" class="preview-time-badge" style="display: none;"></div>
