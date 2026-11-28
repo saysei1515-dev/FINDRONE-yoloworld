@@ -9,25 +9,30 @@ const SERVER_URL_STORAGE_KEY = "findrone_colab_server_url";
 const CAMERA_ID_STORAGE_KEY = "findrone_colab_camera_id";
 const AUTO_CONNECT_KEY = "findrone_colab_auto_connect";
 const NOTIFY_ENABLED_KEY = "findrone_notify_enabled";
+const ALWAYS_CAMERA_KEY = "findrone_always_show_camera";
 
-const NOTIFY_REPEAT_COUNT = 10; // 通知音は2回目以降は10回検出ごと
+const NOTIFY_REPEAT_COUNT = 10;
 
 let isSearching = false;
 let searchTimer = null;
 let isRequestInFlight = false;
-let isUpdatingTarget = false; // サーバーへ新しい物体名を送信・反映中のフラグ
+let isUpdatingTarget = false;
 let targetUpdateSafetyTimer = null;
 let lastSaveTime = 0;
 let currentFinalizedKeyword = "";
 let latestDetectedObjectName = "";
 let hasAutoConnected = false;
 
+// カメラ表示状態（true = 表示中 / 閉じるボタン表示, false = 閉じ中 / カメラを起動ボタン表示）
+let isCameraViewOpen = true;
+let isAlwaysCameraEnabled = true;
+
 // 通知（アプリ内トースト＆Web Audio通知音）用
 let isNotificationEnabled = false;
-let notifySoundStateByObject = {}; // { [objectName]: { hasPlayedOnce, count } }
+let notifySoundStateByObject = {};
 let audioCtx = null;
 
-// 物体名ごとの履歴データ: { [labelName]: [ { id, dataUrl, foundTime }, ... ] }
+// 物体名ごとの履歴データ
 let historyByObject = {};
 let selectedObjectFolder = null;
 let unreadPhotosCount = 0;
@@ -42,14 +47,14 @@ function formatFoundTime(date = new Date()) {
   return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
 }
 
-function setStatus(text, color = "#7a6382") {
+function setStatus(text, color = "#745d7d") {
   if (statusEl) {
     statusEl.innerText = text;
     statusEl.style.color = color;
   }
 }
 
-function setConnectionStatus(text, color = "#7a6382") {
+function setConnectionStatus(text, color = "#745d7d") {
   const connStatus = document.getElementById("connectionStatus");
   if (connStatus) {
     connStatus.innerText = text;
@@ -58,18 +63,70 @@ function setConnectionStatus(text, color = "#7a6382") {
 }
 
 function syncSearchVisualState() {
-  const pill = document.getElementById("searchLivePill");
-  const pillText = document.getElementById("searchLiveText");
+  const chip = document.getElementById("searchStatusChip");
+  const chipText = document.getElementById("searchStatusText");
   const cameraCard = document.getElementById("cameraCard");
 
-  if (pill) pill.classList.toggle("is-searching", isSearching);
-  if (pillText) {
-    pillText.innerText = isSearching
-      ? `ACTIVE${currentFinalizedKeyword ? ` · ${currentFinalizedKeyword}` : ""}`
-      : "STANDBY";
+  if (chip) chip.classList.toggle("is-active", isSearching);
+  if (chipText) {
+    chipText.innerText = isSearching
+      ? `探索中${currentFinalizedKeyword ? ` · ${currentFinalizedKeyword}` : ""}`
+      : "待機中";
   }
   if (cameraCard) cameraCard.classList.toggle("is-searching", isSearching);
+
+  if (startButton) {
+    if (isSearching) {
+      startButton.innerText = "探索終了";
+      startButton.classList.add("active-stop");
+    } else {
+      startButton.innerText = "探索開始";
+      startButton.classList.remove("active-stop");
+    }
+  }
 }
+
+function syncCameraViewUi() {
+  const overlay = document.getElementById("cameraClosedOverlay");
+  const toggleBtn = document.getElementById("cameraToggleBtn");
+  const toggleLabel = document.getElementById("cameraToggleLabel");
+
+  if (video) {
+    video.style.opacity = isCameraViewOpen ? "1" : "0";
+  }
+  if (canvas) {
+    canvas.style.opacity = isCameraViewOpen ? "1" : "0";
+  }
+  if (overlay) {
+    overlay.style.display = isCameraViewOpen ? "none" : "flex";
+  }
+  if (toggleBtn) {
+    toggleBtn.classList.toggle("is-open", isCameraViewOpen);
+    toggleBtn.innerHTML = isCameraViewOpen
+      ? `<i class="bi bi-camera-video-off"></i><span>閉じる</span>`
+      : `<i class="bi bi-camera-video"></i><span>カメラを起動</span>`;
+  }
+  if (toggleLabel) {
+    toggleLabel.innerText = isCameraViewOpen ? "閉じる" : "カメラを起動";
+  }
+}
+
+window.toggleCameraView = function () {
+  isCameraViewOpen = !isCameraViewOpen;
+  syncCameraViewUi();
+};
+
+function syncAlwaysCameraUi() {
+  const btn = document.getElementById("alwaysCameraBtn");
+  if (!btn) return;
+  btn.innerText = isAlwaysCameraEnabled ? "ON" : "OFF";
+  btn.classList.toggle("is-on", isAlwaysCameraEnabled);
+}
+
+window.toggleAlwaysCameraSetting = function () {
+  isAlwaysCameraEnabled = !isAlwaysCameraEnabled;
+  syncAlwaysCameraUi();
+};
 
 function updateUnreadPhotosBadge() {
   const badge = document.getElementById("unreadPhotosBadge");
@@ -118,7 +175,7 @@ function updateBannerAndCount(detections) {
   const count = detections.length;
 
   latestDetectedObjectName = objectName;
-  toastTextEl.innerText = `🎉「${objectName}」を発見！${confText}`;
+  toastTextEl.innerText = `🎉「${objectName}」を発見しました${confText}`;
   toastEl.style.display = "flex";
   toastEl.classList.add("is-visible");
 
@@ -271,6 +328,11 @@ window.goToTab = function (tabName) {
   const targetNav = document.getElementById(`nav-${tabName}`);
   if (targetTab) targetTab.classList.add("active");
   if (targetNav) targetNav.classList.add("active");
+
+  if (tabName === "search") {
+    isCameraViewOpen = isAlwaysCameraEnabled;
+    syncCameraViewUi();
+  }
 };
 
 function buildBaseUrl(rawInput) {
@@ -290,17 +352,24 @@ function initSavedSettings() {
     const savedUrl = localStorage.getItem(SERVER_URL_STORAGE_KEY);
     const savedId = localStorage.getItem(CAMERA_ID_STORAGE_KEY);
     const savedNotifyEnabled = localStorage.getItem(NOTIFY_ENABLED_KEY);
+    const savedAlwaysCamera = localStorage.getItem(ALWAYS_CAMERA_KEY);
 
     if (savedUrl && serverIpInput) serverIpInput.value = savedUrl;
     if (savedId && pcIdInput) pcIdInput.value = savedId;
     if (savedNotifyEnabled === "true") {
       isNotificationEnabled = true;
     }
+    if (savedAlwaysCamera !== null) {
+      isAlwaysCameraEnabled = savedAlwaysCamera === "true";
+    }
   } catch (err) {
     console.warn("設定の初期化に失敗:", err);
   }
 
+  isCameraViewOpen = isAlwaysCameraEnabled;
   updateNotificationUi();
+  syncAlwaysCameraUi();
+  syncCameraViewUi();
   hideFoundBannerAndBadge();
   updateUnreadPhotosBadge();
   syncSearchVisualState();
@@ -334,12 +403,16 @@ window.saveAllSettings = function () {
     localStorage.setItem(CAMERA_ID_STORAGE_KEY, rawId);
     localStorage.setItem(AUTO_CONNECT_KEY, "true");
     localStorage.setItem(NOTIFY_ENABLED_KEY, String(isNotificationEnabled));
+    localStorage.setItem(ALWAYS_CAMERA_KEY, String(isAlwaysCameraEnabled));
+
+    isCameraViewOpen = isAlwaysCameraEnabled;
+    syncCameraViewUi();
 
     setConnectionStatus("設定を保存しました。接続処理を実行中...", "#059669");
     if (rawId) {
       window.connectToPC();
     }
-    alert("設定を保存しました！次回からも自動接続されます");
+    alert("設定を保存しました！");
   } catch (err) {
     console.warn("保存に失敗:", err);
     alert("保存中にエラーが発生しました。");
@@ -377,21 +450,21 @@ window.connectToServerOnly = function () {
   const serverIpInput = document.getElementById("serverIp");
   const url = serverIpInput ? serverIpInput.value.trim() : "";
   if (!url) {
-    alert("IPアドレスまたはURLを入力してください！");
+    alert("サーバIDまたはURLを入力してください！");
     return;
   }
   try {
     localStorage.setItem(SERVER_URL_STORAGE_KEY, url);
   } catch (e) {}
-  setConnectionStatus("サーバーURLを保存しました", "#059669");
-  alert("サーバーのアドレスを登録しました");
+  setConnectionStatus("サーバ情報を保存しました ✅", "#059669");
+  alert("サーバの接続情報を登録しました");
 };
 
 window.connectToPC = function () {
   const pcIdInput = document.getElementById("pcIdInput");
   const pcId = pcIdInput ? pcIdInput.value.trim() : "";
   if (!pcId) {
-    alert("PCのIDを入力してください！");
+    alert("カメラID（PC接続ID）を入力してください！");
     return;
   }
   if (!peer) {
@@ -399,8 +472,8 @@ window.connectToPC = function () {
     return;
   }
 
-  setStatus("ステータス: PCに接続中...", "#b57c18");
-  setConnectionStatus("ステータス: PCに接続中...", "#b57c18");
+  setStatus("ステータス: カメラに接続中...", "#b57c18");
+  setConnectionStatus("ステータス: カメラに接続中...", "#b57c18");
 
   if (conn) {
     try {
@@ -410,23 +483,17 @@ window.connectToPC = function () {
 
   conn = peer.connect(pcId);
   conn.on("open", () => {
-    setStatus("ステータス: PC接続完了 ✅", "#059669");
+    setStatus("ステータス: 接続完了 ✅", "#059669");
     setConnectionStatus("ステータス: 接続完了 ✅", "#059669");
     if (startButton) {
       startButton.disabled = false;
-      if (isSearching) {
-        startButton.innerText = "探索終了";
-        startButton.classList.add("active-stop");
-      } else {
-        startButton.innerText = "探索開始";
-        startButton.classList.remove("active-stop");
-      }
     }
+    syncSearchVisualState();
   });
 
   conn.on("error", (err) => {
     console.error("Peer接続エラー:", err);
-    setStatus("エラー: PCとの接続に失敗しました", "#e11d48");
+    setStatus("エラー: 接続に失敗しました", "#e11d48");
     setConnectionStatus("ステータス: 接続に失敗しました ✕", "#e11d48");
   });
 };
@@ -445,7 +512,7 @@ window.toggleQrScanner = async function () {
 
     readerContainer.style.display = "block";
     if (btn) {
-      btn.innerHTML = `<i class="bi bi-x-circle-fill"></i> QRスキャン停止`;
+      btn.innerHTML = `<i class="bi bi-stop-circle-fill"></i> 停止`;
       btn.classList.add("active-stop");
     }
     isScanning = true;
@@ -471,12 +538,12 @@ window.toggleQrScanner = async function () {
           }
           isScanning = false;
           if (btn) {
-            btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコードカメラ起動`;
+            btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコード読み取り`;
             btn.classList.remove("active-stop");
           }
           readerContainer.style.display = "none";
-          setStatus("✅ IDを取得しました！設定保存か接続を押してください", "#059669");
-          setConnectionStatus("✅ IDを取得しました！「この設定で保存」または「接続」を押してください", "#059669");
+          setStatus("✅ IDを取得しました！設定を保存するか接続を押してください", "#059669");
+          setConnectionStatus("✅ IDを取得しました！「設定を保存」または「接続」を押してください", "#059669");
         },
         () => {}
       );
@@ -484,7 +551,7 @@ window.toggleQrScanner = async function () {
       console.error(err);
       isScanning = false;
       if (btn) {
-        btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコードカメラ起動`;
+        btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコード読み取り`;
         btn.classList.remove("active-stop");
       }
       readerContainer.style.display = "none";
@@ -492,7 +559,7 @@ window.toggleQrScanner = async function () {
   } else {
     isScanning = false;
     if (btn) {
-      btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコードカメラ起動`;
+      btn.innerHTML = `<i class="bi bi-qr-code-scan"></i> QRコード読み取り`;
       btn.classList.remove("active-stop");
     }
     if (html5QrCode && html5QrCode.isScanning) {
@@ -522,12 +589,12 @@ window.updateTarget = async function () {
   const keyword = inputElement ? inputElement.value.trim() : "";
 
   if (!keyword) {
-    alert("探すものを入力してください！");
+    alert("探す物体を入力してください！");
     return;
   }
 
   if (!rawServerInput) {
-    alert("サーバーのURLまたはIPアドレスを入力してください！");
+    alert("サーバIDまたはURLを設定画面で入力してください！");
     goToTab("setting");
     if (serverIpInput) serverIpInput.focus();
     return;
@@ -536,7 +603,7 @@ window.updateTarget = async function () {
   beginTargetLoadingState();
 
   const baseUrl = buildBaseUrl(rawServerInput);
-  setStatus("🔄 サーバーで翻訳中...", "#b57c18");
+  setStatus("🔄 サーバで変換中...", "#b57c18");
 
   try {
     const response = await fetch(`${baseUrl}/translate`, {
@@ -558,15 +625,15 @@ window.updateTarget = async function () {
     syncSearchVisualState();
 
     if (isSearching) {
-      setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#059669");
+      setStatus(`🔍 「${currentFinalizedKeyword}」を探索中...`, "#059669");
     } else {
-      setStatus(`🎯 「${keyword}」➔ 英語: [${currentFinalizedKeyword}] に設定しました`, "#059669");
+      setStatus(`🎯 「${keyword}」➔ [${currentFinalizedKeyword}] に設定しました`, "#059669");
     }
   } catch (err) {
     console.error(err);
     currentFinalizedKeyword = keyword;
     syncSearchVisualState();
-    setStatus(`⚠️ 翻訳に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#e11d48");
+    setStatus(`⚠️ 変換に失敗しました（「${currentFinalizedKeyword}」を使用）`, "#e11d48");
   } finally {
     endTargetLoadingState();
   }
@@ -582,17 +649,17 @@ window.startDetection = async function () {
     const inputVal = inputElement ? inputElement.value.trim() : "";
 
     if (!rawServerInput) {
-      alert("サーバーのURLを設定画面で入力してください！");
+      alert("サーバIDまたはURLを設定画面で入力してください！");
       goToTab("setting");
       return;
     }
     if (!inputVal && !currentFinalizedKeyword) {
-      alert("探すものを入力してください！");
+      alert("探す物体を入力してください！");
       if (inputElement) inputElement.focus();
       return;
     }
     if (!conn || !conn.open) {
-      alert("先にPCと接続してください！");
+      alert("先に設定画面から接続してください！");
       goToTab("setting");
       return;
     }
@@ -610,12 +677,10 @@ window.startDetection = async function () {
     });
 
     isSearching = true;
+    isCameraViewOpen = true;
+    syncCameraViewUi();
     syncSearchVisualState();
-    if (startButton) {
-      startButton.innerText = "探索終了";
-      startButton.classList.add("active-stop");
-    }
-    setStatus(`🔍 「${currentFinalizedKeyword}」をYOLOEで探索中...`, "#059669");
+    setStatus(`🔍 「${currentFinalizedKeyword}」を探索中...`, "#059669");
 
     searchTimer = setInterval(async () => {
       if (!isSearching || isUpdatingTarget || isRequestInFlight || !video || video.videoWidth === 0) return;
@@ -637,17 +702,13 @@ window.startDetection = async function () {
     }
     clearBoundingBoxCanvas();
 
-    if (startButton) {
-      startButton.innerText = "探索開始";
-      startButton.classList.remove("active-stop");
-    }
-    setStatus("ステータス: 停止しました", "#7a6382");
+    setStatus("ステータス: 停止しました", "#745d7d");
   }
 };
 
 window.stopDetection = () => isSearching && window.startDetection();
 
-// ================= サーバーへ画像送信 ＆ 検出 =================
+// ================= サーバへ画像送信 ＆ 検出 =================
 async function sendFrameToPC(serverInput, keyword) {
   if (isUpdatingTarget || !keyword) return;
   isRequestInFlight = true;
@@ -686,7 +747,7 @@ async function sendFrameToPC(serverInput, keyword) {
       body: formData,
     });
 
-    if (!response.ok) throw new Error("サーバー応答エラー");
+    if (!response.ok) throw new Error("サーバ応答エラー");
 
     const data = await response.json();
 
@@ -752,7 +813,7 @@ function drawDetections(detections) {
     const w = ((xmax - xmin) / 1000) * renderWidth;
     const h = ((ymax - ymin) / 1000) * renderHeight;
 
-    ctx.strokeStyle = "#10b981";
+    ctx.strokeStyle = "#34d399";
     ctx.lineWidth = 3.5;
     ctx.strokeRect(x, y, w, h);
 
