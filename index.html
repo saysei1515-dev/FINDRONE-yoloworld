@@ -9,22 +9,25 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root {
-      --bg-white: #ffffff;
-      --bg-subtle: #f8fafc;
-      --border-hairline: #e2e8f0;
-      --border-focus: #2563eb;
-      --ink-primary: #0f172a;
-      --ink-secondary: #64748b;
-      --accent-blue: #2563eb;
-      --accent-blue-hover: #1d4ed8;
-      --accent-blue-soft: #eff6ff;
-      --accent-emerald: #10b981;
-      --accent-emerald-dark: #047857;
-      --accent-emerald-soft: #ecfdf5;
-      --accent-rose: #e11d48;
-      --accent-rose-soft: #fff1f2;
-      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
-      --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --bg-pink: #fdf2f8;
+      --bg-lavender: #f5f0ff;
+      --card-white: #ffffff;
+      --card-tint: #faf7ff;
+      --border-soft: #eadff7;
+      --border-pink: #f3c6e2;
+      --text-main: #23192d;
+      --text-sub: #766587;
+      --grad-cta: linear-gradient(90deg, #db2777 0%, #9333ea 55%, #7c3aed 100%);
+      --grad-cta-hover: linear-gradient(90deg, #be185d 0%, #7e22ce 55%, #6d28d9 100%);
+      --mint-main: #10b981;
+      --mint-dark: #047857;
+      --mint-bg: #ecfdf5;
+      --mint-border: #a7f3d0;
+      --rose-main: #e11d48;
+      --rose-bg: #fff1f2;
+      --rose-border: #fecdd3;
+      --shadow-card: 0 10px 28px rgba(124, 58, 237, 0.08);
+      --shadow-cta: 0 8px 20px rgba(147, 51, 234, 0.24);
     }
 
     * {
@@ -35,8 +38,8 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
-      background-color: var(--bg-subtle);
-      color: var(--ink-primary);
+      background: linear-gradient(160deg, var(--bg-pink) 0%, var(--bg-lavender) 100%);
+      color: var(--text-main);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
@@ -47,10 +50,8 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 76px;
-      background-color: var(--bg-white);
-      border-left: 1px solid var(--border-hairline);
-      border-right: 1px solid var(--border-hairline);
+      padding-bottom: 82px;
+      background: linear-gradient(180deg, rgba(253, 242, 248, 0.75) 0%, rgba(245, 240, 255, 0.85) 100%);
     }
 
     /* ヘッダー */
@@ -61,11 +62,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 13px 18px;
+      padding: 12px 16px;
       background-color: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-soft);
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.05);
     }
 
     .brand-group {
@@ -74,63 +76,64 @@
       gap: 10px;
     }
 
-    .brand-mark {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background-color: var(--accent-blue-soft);
-      color: var(--accent-blue);
+    .brand-icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: var(--grad-cta);
+      color: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.24);
     }
 
     .brand-name {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 800;
-      letter-spacing: 0.2em;
-      color: var(--ink-primary);
+      letter-spacing: 0.14em;
+      color: var(--text-main);
     }
 
-    .history-btn {
+    .history-top-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 12px;
+      padding: 8px 14px;
       border-radius: 999px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-white);
-      color: var(--ink-primary);
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
+      color: var(--text-main);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: border-color 0.15s ease, background-color 0.15s ease;
+      box-shadow: 0 3px 10px rgba(124, 58, 237, 0.06);
+      transition: transform 0.12s ease, border-color 0.15s ease;
     }
 
-    .history-btn i {
+    .history-top-btn i {
       font-size: 15px;
-      color: var(--accent-blue);
+      color: #9333ea;
     }
 
-    .history-btn:hover {
-      border-color: #cbd5e1;
-      background-color: var(--bg-subtle);
+    .history-top-btn:active {
+      transform: scale(0.97);
     }
 
     .unread-badge {
       padding: 1px 6px;
       border-radius: 999px;
-      background-color: var(--accent-emerald);
+      background: var(--grad-cta);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     /* メイン */
     .app-main {
       flex: 1;
-      padding: 18px;
+      padding: 16px;
     }
 
     .tab-content {
@@ -141,51 +144,53 @@
       display: block;
     }
 
-    /* ホーム画面 */
-    .home-card {
-      border: 1px solid var(--border-hairline);
+    .surface-card {
+      background-color: var(--card-white);
+      border: 1px solid var(--border-soft);
       border-radius: 20px;
-      padding: 24px 18px;
-      background-color: var(--bg-white);
-      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-card);
     }
 
+    /* ホーム画面 */
     .home-hero {
       text-align: center;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
-    .drone-logo-box {
-      width: 84px;
-      height: 84px;
+    .drone-frame {
+      width: 88px;
+      height: 88px;
       margin: 0 auto 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-subtle);
+      border-radius: 22px;
+      border: 1px solid var(--border-soft);
+      background: linear-gradient(135deg, #fdf2f8 0%, #f5f0ff 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      box-shadow: 0 6px 18px rgba(147, 51, 234, 0.1);
     }
 
-    .drone-logo-img {
-      width: 72px;
-      height: 72px;
+    .drone-img {
+      width: 74px;
+      height: 74px;
       object-fit: contain;
       display: block;
     }
 
-    .drone-fallback-icon {
+    .drone-fallback {
       font-size: 36px;
-      color: var(--accent-blue);
+      color: #9333ea;
     }
 
-    .home-hero h1 {
+    .home-title {
       margin: 0;
       font-size: 18px;
       font-weight: 800;
-      letter-spacing: 0.28em;
-      color: var(--ink-primary);
+      letter-spacing: 0.22em;
+      color: var(--text-main);
     }
 
     .home-menu-list {
@@ -194,76 +199,69 @@
       gap: 12px;
     }
 
-    .home-menu-item {
-      border: 1px solid var(--border-hairline);
+    .home-menu-card {
+      background-color: var(--card-tint);
+      border: 1px solid var(--border-soft);
       border-radius: 16px;
       padding: 12px 14px;
-      background-color: var(--bg-subtle);
     }
 
-    .home-icon-btn {
+    .home-menu-btn {
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-white);
-      color: var(--ink-primary);
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 13px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: transform 0.12s ease, border-color 0.15s ease;
     }
 
-    .home-icon-btn:hover {
-      border-color: var(--accent-blue);
+    .home-menu-btn:active {
+      transform: scale(0.98);
     }
 
-    .home-icon-btn.primary {
-      background-color: var(--accent-blue);
-      border-color: var(--accent-blue);
+    .home-menu-btn.cta {
+      background: var(--grad-cta);
+      border-color: transparent;
       color: #ffffff;
+      box-shadow: var(--shadow-cta);
     }
 
-    .home-icon-btn.primary:hover {
-      background-color: var(--accent-blue-hover);
-      border-color: var(--accent-blue-hover);
-    }
-
-    .home-btn-icon-wrap {
-      width: 38px;
-      height: 38px;
+    .home-menu-icon {
+      width: 34px;
+      height: 34px;
       border-radius: 10px;
-      background-color: var(--accent-blue-soft);
-      color: var(--accent-blue);
+      background-color: #f5f0ff;
+      color: #9333ea;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
     }
 
-    .home-icon-btn.primary .home-btn-icon-wrap {
-      background-color: rgba(255, 255, 255, 0.18);
+    .home-menu-btn.cta .home-menu-icon {
+      background-color: rgba(255, 255, 255, 0.22);
       color: #ffffff;
     }
 
-    .home-btn-text-group {
+    .home-menu-label-row {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .home-btn-label {
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .home-caption {
+    .home-note {
       margin: 8px 4px 0;
-      font-size: 11.5px;
-      color: var(--ink-secondary);
+      font-size: 12px;
+      color: var(--text-sub);
       line-height: 1.45;
     }
 
@@ -280,128 +278,134 @@
       align-items: center;
     }
 
-    .clean-input {
+    .soft-input {
       flex: 1;
       min-width: 0;
       padding: 11px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-white);
-      color: var(--ink-primary);
+      border-radius: 13px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
+      color: var(--text-main);
       font-size: 14px;
+      font-weight: 600;
+      box-shadow: inset 0 1px 3px rgba(124, 58, 237, 0.04);
+    }
+
+    .soft-input::placeholder {
+      color: #a899b8;
       font-weight: 500;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .clean-input::placeholder {
-      color: #94a3b8;
-    }
-
-    .clean-input:focus {
+    .soft-input:focus {
       outline: none;
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      border-color: #9333ea;
+      box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.14);
     }
 
-    .btn-primary {
+    .btn-cta {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 6px;
       padding: 11px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--accent-blue);
-      background-color: var(--accent-blue);
+      border-radius: 13px;
+      border: none;
+      background: var(--grad-cta);
       color: #ffffff;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
-      transition: background-color 0.15s ease, opacity 0.15s ease;
+      box-shadow: var(--shadow-cta);
+      transition: transform 0.12s ease, opacity 0.15s ease;
     }
 
-    .btn-primary i {
+    .btn-cta i {
       font-size: 16px;
     }
 
-    .btn-primary:hover:not(:disabled) {
-      background-color: var(--accent-blue-hover);
-      border-color: var(--accent-blue-hover);
+    .btn-cta:hover:not(:disabled) {
+      background: var(--grad-cta-hover);
     }
 
-    .btn-primary:disabled {
-      opacity: 0.42;
+    .btn-cta:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-cta:disabled {
+      opacity: 0.45;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
-    .btn-primary.is-stop {
-      background-color: var(--accent-rose);
-      border-color: var(--accent-rose);
+    .btn-cta.is-stop {
+      background: linear-gradient(90deg, #f43f5e 0%, #e11d48 100%);
+      box-shadow: 0 8px 18px rgba(225, 29, 72, 0.24);
     }
 
-    .btn-secondary {
+    .btn-ghost-card {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 6px;
       padding: 11px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-white);
-      color: var(--ink-primary);
+      border-radius: 13px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
+      color: var(--text-main);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color 0.15s ease, background-color 0.15s ease;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.06);
+      transition: transform 0.12s ease, border-color 0.15s ease, background-color 0.15s ease;
     }
 
-    .btn-secondary i {
+    .btn-ghost-card i {
       font-size: 17px;
-      color: var(--accent-blue);
+      color: #9333ea;
     }
 
-    .btn-secondary:hover {
-      background-color: var(--bg-subtle);
-      border-color: #cbd5e1;
+    .btn-ghost-card:active {
+      transform: scale(0.98);
     }
 
-    .btn-secondary.is-camera-open {
-      border-color: var(--accent-emerald);
-      background-color: var(--accent-emerald-soft);
-      color: var(--accent-emerald-dark);
+    .btn-ghost-card.is-camera-open {
+      border-color: var(--mint-border);
+      background-color: var(--mint-bg);
+      color: var(--mint-dark);
     }
 
-    .btn-secondary.is-camera-open i {
-      color: var(--accent-emerald-dark);
+    .btn-ghost-card.is-camera-open i {
+      color: var(--mint-main);
     }
 
-    .controls-grid {
+    .controls-row {
       display: grid;
       grid-template-columns: 1.25fr 1fr;
       gap: 8px;
     }
 
     /* カメラ枠 */
-    .camera-stage {
+    .camera-card {
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
-      border-radius: 16px;
-      border: 1px solid var(--border-hairline);
-      background-color: #0f172a;
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      background-color: #1a1324;
       overflow: hidden;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-card);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .camera-stage.is-searching {
-      border-color: var(--accent-emerald);
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    .camera-card.is-searching {
+      border-color: var(--mint-main);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), var(--shadow-card);
     }
 
-    .camera-stage video,
-    .camera-stage canvas {
+    .camera-card video,
+    .camera-card canvas {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -409,11 +413,11 @@
       object-fit: cover;
     }
 
-    .camera-stage canvas {
+    .camera-card canvas {
       pointer-events: none;
     }
 
-    .camera-closed-layer {
+    .camera-closed-overlay {
       position: absolute;
       inset: 0;
       z-index: 4;
@@ -422,15 +426,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background-color: #f8fafc;
-      color: var(--ink-secondary);
+      background-color: var(--card-tint);
+      color: var(--text-sub);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    .camera-closed-layer i {
+    .camera-closed-overlay i {
       font-size: 28px;
-      color: #94a3b8;
+      color: #9333ea;
     }
 
     /* 発見通知バー：高さを完全固定してカメラ枠や下の要素が上下に動かないようにする */
@@ -443,12 +447,12 @@
       min-height: 44px;
       max-height: 44px;
       padding: 0 14px;
-      border-radius: 12px;
-      border: 1px solid #a7f3d0;
-      background-color: var(--accent-emerald-soft);
-      color: var(--accent-emerald-dark);
+      border-radius: 13px;
+      border: 1px solid var(--mint-border);
+      background-color: var(--mint-bg);
+      color: var(--mint-dark);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       overflow: hidden;
       visibility: hidden;
       opacity: 0;
@@ -479,22 +483,22 @@
     .detected-count-badge {
       padding: 2px 7px;
       border-radius: 999px;
-      background-color: var(--accent-emerald);
+      background-color: var(--mint-main);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .toast-folder-hint {
       font-size: 11px;
       text-decoration: underline;
-      font-weight: 700;
+      font-weight: 800;
     }
 
-    .status-caption {
+    .status-text {
       font-size: 12px;
-      font-weight: 600;
-      color: var(--ink-secondary);
+      font-weight: 700;
+      color: var(--text-sub);
       text-align: center;
       min-height: 18px;
     }
@@ -503,33 +507,33 @@
     .settings-stack {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .setting-group label {
+    .setting-field label {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      font-weight: 700;
-      color: var(--ink-secondary);
+      font-weight: 800;
+      color: var(--text-sub);
       margin-bottom: 6px;
     }
 
-    .setting-group label i {
+    .setting-field label i {
       font-size: 14px;
-      color: var(--accent-blue);
+      color: #9333ea;
     }
 
-    .setting-switch-card {
+    .setting-switch-box {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-subtle);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-tint);
     }
 
     .setting-switch-left {
@@ -538,13 +542,13 @@
       gap: 10px;
     }
 
-    .setting-icon-badge {
+    .setting-icon-box {
       width: 34px;
       height: 34px;
-      border-radius: 9px;
-      background-color: var(--bg-white);
-      border: 1px solid var(--border-hairline);
-      color: var(--accent-blue);
+      border-radius: 10px;
+      background-color: var(--card-white);
+      border: 1px solid var(--border-soft);
+      color: #9333ea;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -554,47 +558,47 @@
 
     .setting-switch-title {
       font-size: 13px;
-      font-weight: 700;
-      color: var(--ink-primary);
+      font-weight: 800;
+      color: var(--text-main);
     }
 
     .setting-switch-sub {
       font-size: 11px;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
       margin-top: 2px;
     }
 
-    .seg-pair {
+    .pill-pair {
       display: inline-flex;
-      border: 1px solid var(--border-hairline);
-      border-radius: 9px;
-      background-color: var(--bg-white);
-      padding: 2px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
       gap: 2px;
       flex-shrink: 0;
     }
 
-    .seg-btn {
-      padding: 5px 11px;
+    .pill-choice {
+      padding: 5px 12px;
       border: none;
-      border-radius: 7px;
+      border-radius: 999px;
       background: transparent;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .seg-btn.is-selected {
-      background-color: var(--accent-emerald);
+    .pill-choice.is-selected {
+      background-color: var(--mint-main);
       color: #ffffff;
     }
 
     #qr-reader {
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
-      border: 1px solid var(--border-hairline);
+      border: 1px solid var(--border-soft);
     }
 
     /* 下部ナビゲーション（3タブ） */
@@ -607,11 +611,13 @@
       max-width: 480px;
       z-index: 25;
       display: flex;
-      background-color: rgba(255, 255, 255, 0.95);
+      gap: 6px;
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border-hairline);
-      padding: 6px 8px;
+      border-top: 1px solid var(--border-soft);
+      box-shadow: 0 -6px 20px rgba(124, 58, 237, 0.06);
     }
 
     .nav-btn {
@@ -620,15 +626,15 @@
       flex-direction: column;
       align-items: center;
       gap: 3px;
-      padding: 6px 4px;
+      padding: 7px 4px;
       border: none;
-      border-radius: 10px;
+      border-radius: 13px;
       background: transparent;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      transition: color 0.15s ease, background-color 0.15s ease;
+      transition: all 0.15s ease;
     }
 
     .nav-btn i {
@@ -636,8 +642,8 @@
     }
 
     .nav-btn.active {
-      color: var(--accent-blue);
-      background-color: var(--accent-blue-soft);
+      background-color: #fdf2f8;
+      color: #db2777;
     }
 
     /* モーダル */
@@ -649,7 +655,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(15, 23, 42, 0.45);
+      background-color: rgba(35, 25, 45, 0.48);
+      backdrop-filter: blur(4px);
       padding: 16px;
     }
 
@@ -659,10 +666,10 @@
       max-height: 82vh;
       display: flex;
       flex-direction: column;
-      border-radius: 18px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-white);
-      box-shadow: var(--shadow-md);
+      border-radius: 20px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-white);
+      box-shadow: 0 18px 40px rgba(35, 25, 45, 0.22);
       overflow: hidden;
     }
 
@@ -672,8 +679,8 @@
       justify-content: space-between;
       gap: 8px;
       padding: 12px 14px;
-      border-bottom: 1px solid var(--border-hairline);
-      background-color: var(--bg-subtle);
+      background-color: var(--card-tint);
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .modal-header-left,
@@ -686,27 +693,27 @@
     .modal-header h3 {
       margin: 0;
       font-size: 14px;
-      font-weight: 700;
-      color: var(--ink-primary);
+      font-weight: 800;
+      color: var(--text-main);
     }
 
     .btn-back-folder,
     .btn-clear-history,
     .btn-close-modal {
       padding: 5px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border-hairline);
+      border-radius: 9px;
+      border: 1px solid var(--border-soft);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      background-color: var(--bg-white);
-      color: var(--ink-primary);
+      background-color: var(--card-white);
+      color: var(--text-main);
     }
 
     .btn-clear-history {
-      border-color: #fecdd3;
-      background-color: var(--accent-rose-soft);
-      color: var(--accent-rose);
+      border-color: var(--rose-border);
+      background-color: var(--rose-bg);
+      color: var(--rose-main);
     }
 
     .modal-body {
@@ -723,9 +730,9 @@
     .folder-card {
       position: relative;
       padding: 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border-hairline);
-      background-color: var(--bg-subtle);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      background-color: var(--card-tint);
       text-align: center;
       cursor: pointer;
     }
@@ -734,19 +741,19 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 8px;
-      background-color: var(--bg-white);
+      border-radius: 10px;
+      background-color: var(--card-white);
     }
 
     .folder-name {
       margin-top: 6px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .folder-count {
       font-size: 11px;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
     }
 
     .photo-grid {
@@ -771,8 +778,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
       cursor: pointer;
     }
 
@@ -784,23 +791,23 @@
       height: 20px;
       border-radius: 999px;
       border: none;
-      background-color: var(--accent-rose);
+      background-color: var(--rose-main);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
     }
 
     .photo-time-label {
       margin-top: 4px;
       font-size: 10px;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
       text-align: center;
     }
 
     .empty-history-msg {
       text-align: center;
-      color: var(--ink-secondary);
+      color: var(--text-sub);
       padding: 24px 8px;
       font-size: 13px;
     }
@@ -813,7 +820,7 @@
     .preview-image {
       max-width: 92vw;
       max-height: 75vh;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 2px solid #ffffff;
       background-color: #ffffff;
     }
@@ -823,9 +830,9 @@
       padding: 6px 12px;
       border-radius: 999px;
       background-color: #ffffff;
-      color: var(--ink-primary);
+      color: var(--text-main);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .preview-hint {
@@ -839,10 +846,10 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="brand-group">
-        <span class="brand-mark"><i class="bi bi-bounding-box-circles"></i></span>
+        <span class="brand-icon-badge"><i class="bi bi-bounding-box-circles"></i></span>
         <span class="brand-name">FINDRONE</span>
       </div>
-      <button type="button" class="history-btn" onclick="openHistoryFolder()" title="発見履歴">
+      <button type="button" class="history-top-btn" onclick="openHistoryFolder()" title="発見履歴">
         <i class="bi bi-folder2-open"></i>
         <span>発見履歴</span>
         <span id="unreadPhotosBadge" class="unread-badge" style="display: none;">0</span>
@@ -852,54 +859,54 @@
     <main class="app-main">
       <!-- ================= ホーム画面 ================= -->
       <div id="homeTab" class="tab-content active">
-        <div class="home-card">
+        <div class="surface-card">
           <div class="home-hero">
-            <div class="drone-logo-box">
+            <div class="drone-frame">
               <img
                 src="drone.png"
-                alt="FINDRONE ドローンアイコン"
-                class="drone-logo-img"
-                onerror="this.style.display='none'; document.getElementById('droneFallbackIcon').style.display='inline-flex';"
+                alt="FINDRONE ドローン"
+                class="drone-img"
+                onerror="this.style.display='none'; document.getElementById('droneFallback').style.display='inline-flex';"
               />
-              <span id="droneFallbackIcon" class="drone-fallback-icon" style="display: none;">
+              <span id="droneFallback" class="drone-fallback" style="display: none;">
                 <i class="bi bi-bounding-box-circles"></i>
               </span>
             </div>
-            <h1>FINDRONE</h1>
+            <h1 class="home-title">FINDRONE</h1>
           </div>
 
           <div class="home-menu-list">
-            <div class="home-menu-item">
-              <button type="button" class="home-icon-btn primary" onclick="goToTab('search')">
-                <span class="home-btn-icon-wrap"><i class="bi bi-search"></i></span>
-                <span class="home-btn-text-group">
-                  <span class="home-btn-label">探す</span>
+            <div class="home-menu-card">
+              <button type="button" class="home-menu-btn cta" onclick="goToTab('search')">
+                <span class="home-menu-icon"><i class="bi bi-search"></i></span>
+                <span class="home-menu-label-row">
+                  <span>探す</span>
                   <i class="bi bi-chevron-right"></i>
                 </span>
               </button>
-              <p class="home-caption">※探したい物体の名前や特徴から物体検知を行います</p>
+              <p class="home-note">※探したい物体の名前や特徴から物体検知を行います[cite: 1]</p>
             </div>
 
-            <div class="home-menu-item">
-              <button type="button" class="home-icon-btn" onclick="goToTab('setting')">
-                <span class="home-btn-icon-wrap"><i class="bi bi-gear-fill"></i></span>
-                <span class="home-btn-text-group">
-                  <span class="home-btn-label">設定</span>
+            <div class="home-menu-card">
+              <button type="button" class="home-menu-btn" onclick="goToTab('setting')">
+                <span class="home-menu-icon"><i class="bi bi-gear-fill"></i></span>
+                <span class="home-menu-label-row">
+                  <span>設定</span>
                   <i class="bi bi-chevron-right"></i>
                 </span>
               </button>
-              <p class="home-caption">※サーバID・カメラIDの設定を行います</p>
+              <p class="home-note">※サーバID・カメラIDの設定を行います[cite: 1]</p>
             </div>
 
-            <div class="home-menu-item">
-              <button type="button" class="home-icon-btn" onclick="openHistoryFolder()">
-                <span class="home-btn-icon-wrap"><i class="bi bi-folder2-open"></i></span>
-                <span class="home-btn-text-group">
-                  <span class="home-btn-label">発見履歴</span>
+            <div class="home-menu-card">
+              <button type="button" class="home-menu-btn" onclick="openHistoryFolder()">
+                <span class="home-menu-icon"><i class="bi bi-folder2-open"></i></span>
+                <span class="home-menu-label-row">
+                  <span>発見履歴</span>
                   <i class="bi bi-chevron-right"></i>
                 </span>
               </button>
-              <p class="home-caption">※発見した物体一覧が表示されます</p>
+              <p class="home-note">※発見した物体一覧が表示されます[cite: 1]</p>
             </div>
           </div>
         </div>
@@ -907,198 +914,202 @@
 
       <!-- ================= 探す画面 ================= -->
       <div id="searchTab" class="tab-content">
-        <div class="search-stack">
-          <div class="input-row">
-            <input
-              type="text"
-              id="targetObject"
-              class="clean-input"
-              placeholder="探す物体を入力"
-              autocomplete="off"
-            />
-            <button type="button" class="btn-primary" onclick="updateTarget()" title="決定">
-              <i class="bi bi-check-lg"></i>
-              <span>決定</span>
-            </button>
-          </div>
-
-          <div class="controls-grid">
-            <button
-              type="button"
-              id="startButton"
-              class="btn-primary"
-              onclick="startDetection()"
-              disabled
-            >
-              <i class="bi bi-play-fill"></i>
-              <span>探索開始</span>
-            </button>
-            <button
-              type="button"
-              id="cameraToggleBtn"
-              class="btn-secondary is-camera-open"
-              onclick="toggleCameraView()"
-            >
-              <i class="bi bi-camera-video-off"></i>
-              <span id="cameraToggleLabel">閉じる</span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            id="stopButton"
-            style="display: none;"
-            onclick="stopDetection()"
-          >
-            探索終了
-          </button>
-
-          <div id="cameraCard" class="camera-stage">
-            <video id="video" autoplay muted playsinline></video>
-            <canvas id="outputCanvas"></canvas>
-            <div id="cameraClosedOverlay" class="camera-closed-layer" style="display: none;">
-              <i class="bi bi-camera-video-off"></i>
-              <span>カメラ映像を閉じています</span>
+        <div class="surface-card">
+          <div class="search-stack">
+            <div class="input-row">
+              <input
+                type="text"
+                id="targetObject"
+                class="soft-input"
+                placeholder="探す物体を入力"
+                autocomplete="off"
+              />
+              <button type="button" class="btn-cta" onclick="updateTarget()" title="決定">
+                <i class="bi bi-check-lg"></i>
+                <span>決定</span>
+              </button>
             </div>
-          </div>
 
-          <!-- 高さを完全固定し、通知の有無でカメラ枠や下の要素が上下に動かないようにする -->
-          <div
-            id="foundToast"
-            class="found-toast"
-            title="タップして発見履歴を開く"
-            onclick="openFoundObjectFolder()"
-          >
-            <span id="foundToastText"></span>
-            <span class="found-toast-meta">
-              <span id="detectedCountBadge" class="detected-count-badge" style="display: none;">×0</span>
-              <span class="toast-folder-hint">履歴</span>
-            </span>
-          </div>
+            <div class="controls-row">
+              <button
+                type="button"
+                id="startButton"
+                class="btn-cta"
+                onclick="startDetection()"
+                disabled
+              >
+                <i class="bi bi-play-fill"></i>
+                <span>探索開始</span>
+              </button>
+              <button
+                type="button"
+                id="cameraToggleBtn"
+                class="btn-ghost-card is-camera-open"
+                onclick="toggleCameraView()"
+              >
+                <i class="bi bi-camera-video-off"></i>
+                <span id="cameraToggleLabel">閉じる</span>
+              </button>
+            </div>
 
-          <div id="status" class="status-caption">ステータス: 未接続</div>
+            <button
+              type="button"
+              id="stopButton"
+              style="display: none;"
+              onclick="stopDetection()"
+            >
+              探索終了
+            </button>
+
+            <!-- 高さを完全固定し、通知の有無でカメラ枠や下の要素が上下に動かないようにする -->
+            <div
+              id="foundToast"
+              class="found-toast"
+              title="タップして発見履歴を開く"
+              onclick="openFoundObjectFolder()"
+            >
+              <span id="foundToastText"></span>
+              <span class="found-toast-meta">
+                <span id="detectedCountBadge" class="detected-count-badge" style="display: none;">×0</span>
+                <span class="toast-folder-hint">履歴</span>
+              </span>
+            </div>
+
+            <div id="status" class="status-text">ステータス: 未接続</div>
+          </div>
+        </div>
+
+        <div id="cameraCard" class="camera-card">
+          <video id="video" autoplay muted playsinline></video>
+          <canvas id="outputCanvas"></canvas>
+          <div id="cameraClosedOverlay" class="camera-closed-overlay" style="display: none;">
+            <i class="bi bi-camera-video-off"></i>
+            <span>カメラ映像を閉じています</span>
+          </div>
         </div>
       </div>
 
       <!-- ================= 設定画面 ================= -->
       <div id="settingTab" class="tab-content">
-        <div class="settings-stack">
-          <div class="setting-group">
-            <label for="serverIp"><i class="bi bi-hdd-network-fill"></i> サーバID</label>
-            <div class="input-row">
-              <input
-                type="text"
-                id="serverIp"
-                class="clean-input"
-                placeholder="サーバIDを入力"
-              />
-              <button type="button" class="btn-primary" onclick="connectToServerOnly()" title="接続">
-                <i class="bi bi-plug-fill"></i>
-                <span>接続</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="setting-group">
-            <label for="pcIdInput"><i class="bi bi-webcam-fill"></i> カメラID</label>
-            <div class="input-row">
-              <input
-                type="text"
-                id="pcIdInput"
-                class="clean-input"
-                placeholder="カメラIDを入力"
-              />
-              <button type="button" class="btn-primary" onclick="connectToPC()" title="接続">
-                <i class="bi bi-plug-fill"></i>
-                <span>接続</span>
-              </button>
-            </div>
-          </div>
-
-          <button type="button" id="btn-qr" class="btn-secondary" onclick="toggleQrScanner()">
-            <i class="bi bi-qr-code-scan"></i>
-            <span id="qrBtnLabel">QRコード読み取り</span>
-          </button>
-          <div id="qr-reader" style="display: none;"></div>
-
-          <div class="setting-switch-card">
-            <div class="setting-switch-left">
-              <span class="setting-icon-badge"><i class="bi bi-camera-video-fill"></i></span>
-              <div>
-                <div class="setting-switch-title">カメラ常時表示</div>
-                <div class="setting-switch-sub">探す画面を開いたときに映像を表示</div>
+        <div class="surface-card">
+          <div class="settings-stack">
+            <div class="setting-field">
+              <label for="serverIp"><i class="bi bi-hdd-network-fill"></i> サーバID</label>
+              <div class="input-row">
+                <input
+                  type="text"
+                  id="serverIp"
+                  class="soft-input"
+                  placeholder="サーバIDを入力"
+                />
+                <button type="button" class="btn-cta" onclick="connectToServerOnly()" title="接続">
+                  <i class="bi bi-plug-fill"></i>
+                  <span>接続</span>
+                </button>
               </div>
             </div>
-            <div class="seg-pair">
-              <button
-                type="button"
-                id="alwaysCamOnBtn"
-                class="seg-btn is-selected"
-                onclick="setAlwaysCameraEnabled(true)"
-              >
-                ON
-              </button>
-              <button
-                type="button"
-                id="alwaysCamOffBtn"
-                class="seg-btn"
-                onclick="setAlwaysCameraEnabled(false)"
-              >
-                OFF
-              </button>
-              <button
-                type="button"
-                id="alwaysCameraBtn"
-                style="display: none;"
-                onclick="toggleAlwaysCameraSetting()"
-              >
-                ON
-              </button>
-            </div>
-          </div>
 
-          <div class="setting-switch-card">
-            <div class="setting-switch-left">
-              <span class="setting-icon-badge"><i class="bi bi-bell-fill"></i></span>
-              <div>
-                <div class="setting-switch-title">通知音</div>
-                <div class="setting-switch-sub">物体を発見したときにサウンド再生</div>
+            <div class="setting-field">
+              <label for="pcIdInput"><i class="bi bi-webcam-fill"></i> カメラID</label>
+              <div class="input-row">
+                <input
+                  type="text"
+                  id="pcIdInput"
+                  class="soft-input"
+                  placeholder="カメラIDを入力"
+                />
+                <button type="button" class="btn-cta" onclick="connectToPC()" title="接続">
+                  <i class="bi bi-plug-fill"></i>
+                  <span>接続</span>
+                </button>
               </div>
             </div>
-            <div class="seg-pair">
-              <button
-                type="button"
-                id="notifyOnBtn"
-                class="seg-btn"
-                onclick="setNotificationEnabled(true)"
-              >
-                ON
-              </button>
-              <button
-                type="button"
-                id="notifyOffBtn"
-                class="seg-btn is-selected"
-                onclick="setNotificationEnabled(false)"
-              >
-                OFF
-              </button>
-              <button
-                type="button"
-                id="notifyToggleBtn"
-                style="display: none;"
-                onclick="toggleNotificationSetting()"
-              >
-                OFF
-              </button>
+
+            <button type="button" id="btn-qr" class="btn-ghost-card" onclick="toggleQrScanner()">
+              <i class="bi bi-qr-code-scan"></i>
+              <span id="qrBtnLabel">QRコード読み取り</span>
+            </button>
+            <div id="qr-reader" style="display: none;"></div>
+
+            <div class="setting-switch-box">
+              <div class="setting-switch-left">
+                <span class="setting-icon-box"><i class="bi bi-camera-video-fill"></i></span>
+                <div>
+                  <div class="setting-switch-title">カメラ常時表示</div>
+                  <div class="setting-switch-sub">探す画面を開いたときに映像を表示</div>
+                </div>
+              </div>
+              <div class="pill-pair">
+                <button
+                  type="button"
+                  id="alwaysCamOnBtn"
+                  class="pill-choice is-selected"
+                  onclick="setAlwaysCameraEnabled(true)"
+                >
+                  ON
+                </button>
+                <button
+                  type="button"
+                  id="alwaysCamOffBtn"
+                  class="pill-choice"
+                  onclick="setAlwaysCameraEnabled(false)"
+                >
+                  OFF
+                </button>
+                <button
+                  type="button"
+                  id="alwaysCameraBtn"
+                  style="display: none;"
+                  onclick="toggleAlwaysCameraSetting()"
+                >
+                  ON
+                </button>
+              </div>
             </div>
+
+            <div class="setting-switch-box">
+              <div class="setting-switch-left">
+                <span class="setting-icon-box"><i class="bi bi-bell-fill"></i></span>
+                <div>
+                  <div class="setting-switch-title">通知音</div>
+                  <div class="setting-switch-sub">物体を発見したときにサウンド再生</div>
+                </div>
+              </div>
+              <div class="pill-pair">
+                <button
+                  type="button"
+                  id="notifyOnBtn"
+                  class="pill-choice"
+                  onclick="setNotificationEnabled(true)"
+                >
+                  ON
+                </button>
+                <button
+                  type="button"
+                  id="notifyOffBtn"
+                  class="pill-choice is-selected"
+                  onclick="setNotificationEnabled(false)"
+                >
+                  OFF
+                </button>
+                <button
+                  type="button"
+                  id="notifyToggleBtn"
+                  style="display: none;"
+                  onclick="toggleNotificationSetting()"
+                >
+                  OFF
+                </button>
+              </div>
+            </div>
+
+            <div id="connectionStatus" class="status-text">ステータス: 未接続</div>
+
+            <button type="button" class="btn-cta" style="width: 100%; padding: 13px;" onclick="saveAllSettings()">
+              <i class="bi bi-check2-circle"></i>
+              <span>設定を保存</span>
+            </button>
           </div>
-
-          <div id="connectionStatus" class="status-caption">ステータス: 未接続</div>
-
-          <button type="button" class="btn-primary" style="width: 100%; padding: 13px;" onclick="saveAllSettings()">
-            <i class="bi bi-check2-circle"></i>
-            <span>設定を保存</span>
-          </button>
         </div>
       </div>
     </main>
